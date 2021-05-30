@@ -1,11 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Alert, PermissionsAndroid, DeviceEventEmitter, TouchableOpacity } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import MusicFiles from '@yajanarao/react-native-get-music-files';
 import Permissions from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SongList from './components/SongList';
 
-export default class App extends React.Component {
+const App = () => {
+  return (
+    <NavigationContainer>
+
+    </NavigationContainer>
+  )
+};
+export default App;
+
+class HomeScreen extends React.Component {
     state = {
       storagePermission: '',
       songs: [],
