@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Permissions from 'react-native-permissions';
+import TrackPlayer from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
 
@@ -40,6 +41,21 @@ export default class App extends React.Component {
 const HomeScreen = ({ navigation, route }) => {
   const [[artists, albums, songs], refreshMusic] = useMusicStore();
 
+  const setupPromise = TrackPlayer.setupPlayer();
+  const playSong = song => {
+    setupPromise.then(async () => {
+      console.log(`playing '${song.title}'`);
+      await TrackPlayer.add({
+        id: song.id,
+        url: song.path,
+        title: song.title,
+        artist: song.artist,
+        album: song.album,
+      });
+      TrackPlayer.play();
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -49,13 +65,13 @@ const HomeScreen = ({ navigation, route }) => {
         <Text style={{ flex: 1 }}>Songs found: {songs.length}</Text>
       </View>
       <View style={styles.main}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: () => alert('artist') })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => alert(JSON.stringify(artist)) })}>
           <Text>Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: () => alert('album') })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => alert(JSON.stringify(album)) })}>
           <Text>Albums</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: () => alert('song') })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: playSong })}>
           <Text>Songs</Text>
         </TouchableOpacity>
       </View>
