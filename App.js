@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
 import Permissions from 'react-native-permissions';
-import TrackPlayer from 'react-native-track-player';
+import TrackPlayer, { Capability } from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
 
@@ -69,6 +69,18 @@ const HomeScreen = ({ navigation, route }) => {
 
   React.useEffect(async () => {
     await TrackPlayer.setupPlayer();
+    await TrackPlayer.updateOptions({
+      //stopWithApp: true,
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.Stop,
+      ],
+      compactCapabilities: [Capability.Play, Capability.Pause],
+    });
+    // // TrackPlayer.
     setIsTrackPlayerInit(true);
   });
 
@@ -97,16 +109,20 @@ const HomeScreen = ({ navigation, route }) => {
   const playSong = async song => {
     if (!isTrackPlayerInit) return;
 
+    const url = `file://${song.path}`;
+    console.log(`playing ${url}`);
     await TrackPlayer.add({
       id: song.id,
-      url: song.path,
-      type: 'default',
+      url,
+      //type: 'default',
       title: song.title,
       album: song.album,
       artist: song.artist,
     });
 
-    TrackPlayer.play();
+    await TrackPlayer.play();
+    await TrackPlayer.pause();
+    setTimeout(() => TrackPlayer.play(), 1000);
   };
 
   return (
