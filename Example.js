@@ -22,9 +22,8 @@ import TrackPlayer, {
 //import playlistData from './react/data/playlist.json';
 // @ts-ignore
 //import localTrack from './react/resources/pure.m4a';
-const localTrack = 'file:///storage/emulated/0/El Giganto/Music/The FLEX Project.mp3';
 
-const setup = async () => {
+const setup = async (songs, i) => {
   await TrackPlayer.setupPlayer({});
   await TrackPlayer.updateOptions({
     stopWithApp: true,
@@ -38,18 +37,19 @@ const setup = async () => {
     compactCapabilities: [Capability.Play, Capability.Pause],
   });
 
-  //await TrackPlayer.add(playlistData);
-  await TrackPlayer.add({
-    url: localTrack,
-    title: 'The FLEX Project',
-    artist: 'Matthew Bryant',
-    artwork: 'https://i.scdn.co/image/e5c7b168be89098eb686e02152aaee9d3a24e5b6',
-    duration: 205,
-  });
+  await TrackPlayer.add(songs.map(song => ({
+    url: `file://${song.path}`,
+    title: song.title,
+    artist: song.artist,
+    artwork: song.cover,
+    duration: song.duration,
+  })));
+  TrackPlayer.skip(i);
+  // console.log(songs);
 
   // Workaround because there's no way to just load the queue content into player without playing.
   await TrackPlayer.play();
-  await TrackPlayer.pause();
+  //await TrackPlayer.pause();
 };
 
 const togglePlayback = async playbackState => {
@@ -65,7 +65,7 @@ const togglePlayback = async playbackState => {
   }
 };
 
-const App = () => {
+const MusicPlayer = ({ route }) => {
   const playbackState = usePlaybackState();
   const progress = useProgress();
 
@@ -76,6 +76,7 @@ const App = () => {
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
+      console.log(track);
       const {title, artist, artwork} = track || {};
       setTrackTitle(title);
       setTrackArtist(artist);
@@ -84,7 +85,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    setup();
+    setup(route.params.songs, route.params.index);
   }, []);
 
   return (
@@ -209,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default MusicPlayer;

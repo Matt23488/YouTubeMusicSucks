@@ -7,6 +7,7 @@ import Permissions from 'react-native-permissions';
 import TrackPlayer, { Capability } from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
+import MusicPlayer from './Example';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -33,6 +34,7 @@ export default class App extends React.Component {
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="ActionList" component={ActionList} />
+          <Stack.Screen name="MusicPlayer" component={MusicPlayer} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -67,22 +69,22 @@ const HomeScreen = ({ navigation, route }) => {
     Promise.all([getArtists, getAlbums]).then(setMusic);
   });
 
-  React.useEffect(async () => {
-    await TrackPlayer.setupPlayer();
-    await TrackPlayer.updateOptions({
-      //stopWithApp: true,
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.Stop,
-      ],
-      compactCapabilities: [Capability.Play, Capability.Pause],
-    });
-    // // TrackPlayer.
-    setIsTrackPlayerInit(true);
-  });
+  // React.useEffect(async () => {
+  //   await TrackPlayer.setupPlayer();
+  //   await TrackPlayer.updateOptions({
+  //     //stopWithApp: true,
+  //     capabilities: [
+  //       Capability.Play,
+  //       Capability.Pause,
+  //       Capability.SkipToNext,
+  //       Capability.SkipToPrevious,
+  //       Capability.Stop,
+  //     ],
+  //     compactCapabilities: [Capability.Play, Capability.Pause],
+  //   });
+  //   // // TrackPlayer.
+  //   setIsTrackPlayerInit(true);
+  // });
 
   // const [artistAlbums, setArtistAlbums] = React.useState([]);
   // const getAlbumsFromArtist = artist => {
@@ -95,13 +97,13 @@ const HomeScreen = ({ navigation, route }) => {
   // };
   const viewAlbumsFromArtist = artist => {
     RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
-      navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
+      navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => (viewSongsFromAlbum(album.author, album.album), console.log(album)) });
     });
   };
 
   const viewSongsFromAlbum = (artist, album) => {
     RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
-      navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: playSong });
+      navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => navigation.navigate('MusicPlayer', { songs, index: i }) });
     });
   };
 
@@ -137,7 +139,7 @@ const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
           <Text>Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => (viewSongsFromAlbum(album.author, album.album), console.log(album)) })}>
           <Text>Albums</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: playSong })}>

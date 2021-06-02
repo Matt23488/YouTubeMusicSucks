@@ -4,8 +4,8 @@ import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 const ActionList = ({ navigation, route }) => {
     return (
         <ScrollView>
-            {route.params.items.map(item => (
-                <TouchableOpacity key={item.id} onPress={() => route.params.onItemPress(item)} style={styles.item}>
+            {route.params.items.map((item, i) => (
+                <TouchableOpacity key={item.id} onPress={() => route.params.onItemPress(item, i)} style={styles.item}>
                     <Text>{route.params.getDisplayText(item)}</Text>
                 </TouchableOpacity>
             ))}
