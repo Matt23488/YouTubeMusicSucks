@@ -10,6 +10,7 @@ const currentToken = {
 export const getToken = async () => {
     if (currentToken.token && currentToken.expires > Date.now()) return currentToken.token;
 
+    console.log('fetching new spotify token');
     const requestParam = base64.encode(`${credentials.clientID}:${credentials.clientSecret}`);
     const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -21,7 +22,7 @@ export const getToken = async () => {
     }).then(r => r.json());
 
     const expires = new Date();
-    expires.setSeconds(expires.getSeconds() + response.expires_in);
+    expires.setSeconds(expires.getSeconds() + response.expires_in - 30);
     currentToken.token = response.access_token;
     currentToken.expires = expires;
 
