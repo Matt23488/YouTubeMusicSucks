@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import TrackPlayer, { Capability, Event, State, usePlaybackState, useTrackPlayerEvents } from 'react-native-track-player';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 const setup = async () => {
     console.log('setup');
@@ -62,22 +63,20 @@ const MusicPlayer = () => {
     return (
         <View style={[styles.container, extraStyles]}>
             <TouchableOpacity onPress={toggleExpanded} style={{ borderWidth: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <Text>==</Text>
+                <Icon name="grip-lines" color="black" />
             </TouchableOpacity>
             {/* <Image style={styles.artwork} source={{uri: `${trackArtwork}`}} />
             <Text style={styles.titleText}>{trackTitle}</Text>
             <Text style={styles.artistText}>{trackArtist}</Text> */}
             <View style={styles.playbackControls}>
                 <TouchableWithoutFeedback onPress={() => TrackPlayer.skipToPrevious()}>
-                    <Text style={styles.secondaryActionButton}>Prev</Text>
+                    <Icon name="step-backward" size={30} color="black" />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => togglePlayback(playbackState)}>
-                    <Text style={styles.primaryActionButton}>
-                        {playbackState === State.Playing ? 'Pause' : 'Play'}
-                    </Text>
+                    <Icon name={playbackState === State.Playing ? 'pause' : 'play'} size={30} color="black" />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => TrackPlayer.skipToNext()}>
-                    <Text style={styles.secondaryActionButton}>Next</Text>
+                    <Icon name="step-forward" size={30} color="black" />
                 </TouchableWithoutFeedback>
             </View>
         </View>
@@ -96,7 +95,8 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     playbackControls: {
-        flex: 1,
+        width: '100%',
+        flexGrow: 1,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
@@ -117,15 +117,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
       fontWeight: '200',
       color: 'white',
-    },
-    primaryActionButton: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: '#FFD479',
-    },
-    secondaryActionButton: {
-      fontSize: 14,
-      color: '#FFD479',
     },
 });
 
