@@ -44,13 +44,17 @@ export default class App extends React.Component {
 };
 
 const HomeScreen = ({ navigation, route }) => {
-  const [[artists, albums], setMusic] = React.useState([[], []]);
+  const [[artists, albums/*, songs*/], setMusic] = React.useState([[], [], []]);
 
   React.useEffect(async () => {
     const getArtists = RNAndroidAudioStore.getArtists();
     const getAlbums = RNAndroidAudioStore.getAlbums();
+    //const getSongs = RNAndroidAudioStore.getSongs();
 
-    Promise.all([getArtists, getAlbums]).then(setMusic);
+    const [artists, albums] = await Promise.all([getArtists, getAlbums/*, getSongs*/]);
+    artists.sort((a, b) => a.artist < b.artist ? -1 : a.artist > b.artist ? 1 : 0);
+    albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
+    setMusic([artists, albums]);
   });
 
   // const [artistAlbums, setArtistAlbums] = React.useState([]);
@@ -79,7 +83,8 @@ const HomeScreen = ({ navigation, route }) => {
 
   const viewAlbumsFromArtist = artist => {
     RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
-      navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => (viewSongsFromAlbum(album.author, album.album), console.log(album)) });
+      albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
+      navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
     });
   };
 
@@ -101,10 +106,10 @@ const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
           <Text>Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => (viewSongsFromAlbum(album.author, album.album), console.log(album)) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) })}>
           <Text>Albums</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: playSong })}>
+        {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: alert })}>
           <Text>Songs</Text>
         </TouchableOpacity> */}
       </View>
