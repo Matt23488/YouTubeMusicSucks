@@ -4,10 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
 import Permissions from 'react-native-permissions';
-import TrackPlayer, { Capability, State, usePlaybackState } from 'react-native-track-player';
+import TrackPlayer from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
-// import MusicPlayer from './Example';
 import MusicPlayer from './components/MusicPlayer';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
@@ -35,7 +34,6 @@ export default class App extends React.Component {
           <Stack.Navigator>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="ActionList" component={ActionList} />
-            {/* <Stack.Screen name="MusicPlayer" component={MusicPlayer} /> */}
           </Stack.Navigator>
           <MusicPlayer />
         </NavigationContainer>

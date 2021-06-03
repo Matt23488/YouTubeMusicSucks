@@ -60,3 +60,6 @@ buck-out/
 
 # Large file being a dick
 *.hprof
+
+# secrets
+/secrets

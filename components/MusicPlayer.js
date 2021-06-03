@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, Vi
 import TrackPlayer, { Capability, Event, RepeatMode, State, usePlaybackState, useProgress, useTrackPlayerEvents } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import * as spotify from '../spotify';
 
 const MusicPlayer = () => {
     const [expanded, setExpanded] = useState(false);
@@ -16,11 +17,28 @@ const MusicPlayer = () => {
     useTrackPlayerEvents([Event.PlaybackTrackChanged, Event.PlaybackError], async event => {
         if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
             const track = await TrackPlayer.getTrack(event.nextTrack);
-            console.log(track);
+            //console.log(track);
+
             const {title, artist, artwork} = track || {};
-            setTrackTitle(title);
-            setTrackArtist(artist);
-            setTrackArtwork(artwork);
+            try {
+                const results = await spotify.search({ q: title, types: ['track'] });
+                // TODO: Better matching. Tbh I should do it at the album level.
+                // actually I should build in functionality to update metadata on the music
+                // and cache it using async storage. Then just pull the track info from there to use here.
+                const match = results.tracks.items[0];
+                // console.log(match.name);
+                // console.log(match.artists[0].name);
+                // console.log(match.album.images[0].url);
+                setTrackTitle(match.name);
+                setTrackArtist(match.artists[0].name);
+                setTrackArtwork(match.album.images[0].url);
+            } catch (e) {
+                console.log(e);
+                setTrackTitle(title);
+                setTrackArtist(artist);
+                setTrackArtwork(artwork);
+            }
+
         }
         else console.log(event);
     });
