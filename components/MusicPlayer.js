@@ -3,21 +3,6 @@ import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, Vi
 import TrackPlayer, { Capability, Event, State, usePlaybackState, useTrackPlayerEvents } from 'react-native-track-player';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const setup = async () => {
-    console.log('setup');
-    await TrackPlayer.setupPlayer({});
-    await TrackPlayer.updateOptions({
-        capabilities: [
-            Capability.Play,
-            Capability.Pause,
-            Capability.SkipToNext,
-            Capability.SkipToPrevious,
-            Capability.Stop,
-        ],
-        compactCapabilities: [Capability.Play, Capability.Pause],
-    });
-};
-
 const MusicPlayer = () => {
     const [expanded, setExpanded] = useState(false);
     const playbackState = usePlaybackState();
@@ -57,7 +42,26 @@ const MusicPlayer = () => {
     };
 
     useEffect(() => {
+        const setup = async () => {
+            console.log('setup');
+            await TrackPlayer.setupPlayer({});
+            await TrackPlayer.updateOptions({
+                capabilities: [
+                    Capability.Play,
+                    Capability.Pause,
+                    Capability.SkipToNext,
+                    Capability.SkipToPrevious,
+                    Capability.Stop,
+                ],
+                compactCapabilities: [Capability.Play, Capability.Pause],
+            });
+        };
         setup();
+
+        return async () => {
+            console.log('destroy');
+            await TrackPlayer.destroy();
+        };
     }, []);
 
     return (

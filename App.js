@@ -44,25 +44,7 @@ export default class App extends React.Component {
 };
 
 const HomeScreen = ({ navigation, route }) => {
-  // const [[artists, albums, songs], refreshMusic] = useMusicStore();
-
-  // const setupPromise = TrackPlayer.setupPlayer();
-  // const playSong = song => {
-  //   setupPromise.then(async () => {
-  //     console.log(`playing '${song.title}'`);
-  //     await TrackPlayer.add({
-  //       id: song.id,
-  //       url: song.path,
-  //       title: song.title,
-  //       artist: song.artist,
-  //       album: song.album,
-  //     });
-  //     TrackPlayer.play();
-  //   });
-  // };
-
   const [[artists, albums], setMusic] = React.useState([[], []]);
-  const [isTrackPlayerInit, setIsTrackPlayerInit] = React.useState(false);
 
   React.useEffect(async () => {
     const getArtists = RNAndroidAudioStore.getArtists();
@@ -70,23 +52,6 @@ const HomeScreen = ({ navigation, route }) => {
 
     Promise.all([getArtists, getAlbums]).then(setMusic);
   });
-
-  // React.useEffect(async () => {
-  //   await TrackPlayer.setupPlayer();
-  //   await TrackPlayer.updateOptions({
-  //     //stopWithApp: true,
-  //     capabilities: [
-  //       Capability.Play,
-  //       Capability.Pause,
-  //       Capability.SkipToNext,
-  //       Capability.SkipToPrevious,
-  //       Capability.Stop,
-  //     ],
-  //     compactCapabilities: [Capability.Play, Capability.Pause],
-  //   });
-  //   // // TrackPlayer.
-  //   setIsTrackPlayerInit(true);
-  // });
 
   // const [artistAlbums, setArtistAlbums] = React.useState([]);
   // const getAlbumsFromArtist = artist => {
@@ -98,13 +63,8 @@ const HomeScreen = ({ navigation, route }) => {
   //   RNAndroidAudioStore.getSongs({ artist, album }).then(setAlbumSongs);
   // };
 
-  const playbackState = usePlaybackState();
-
   const playSong = async (songs, index) => {
-    if (playbackState === State.Playing) {
-      await TrackPlayer.reset();
-    }
-
+    await TrackPlayer.reset();
     await TrackPlayer.add(songs.map(song => ({
       url: `file://${song.path}`,
       title: song.title,
@@ -128,25 +88,6 @@ const HomeScreen = ({ navigation, route }) => {
       navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
     });
   };
-
-  // const playSong = async song => {
-  //   if (!isTrackPlayerInit) return;
-
-  //   const url = `file://${song.path}`;
-  //   console.log(`playing ${url}`);
-  //   await TrackPlayer.add({
-  //     id: song.id,
-  //     url,
-  //     //type: 'default',
-  //     title: song.title,
-  //     album: song.album,
-  //     artist: song.artist,
-  //   });
-
-  //   await TrackPlayer.play();
-  //   await TrackPlayer.pause();
-  //   setTimeout(() => TrackPlayer.play(), 1000);
-  // };
 
   return (
     <View style={styles.container}>
