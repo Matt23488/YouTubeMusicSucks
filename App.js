@@ -1,13 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, LogBox } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, LogBox, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
 import Permissions from 'react-native-permissions';
-import TrackPlayer, { Capability } from 'react-native-track-player';
+import TrackPlayer, { Capability, State, usePlaybackState } from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
-import MusicPlayer from './Example';
+// import MusicPlayer from './Example';
+import MusicPlayer from './components/MusicPlayer';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -30,13 +31,14 @@ export default class App extends React.Component {
     if (!this.state.loaded) return null;
 
     return (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="ActionList" component={ActionList} />
-          <Stack.Screen name="MusicPlayer" component={MusicPlayer} />
-        </Stack.Navigator>
-      </NavigationContainer>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="ActionList" component={ActionList} />
+            {/* <Stack.Screen name="MusicPlayer" component={MusicPlayer} /> */}
+          </Stack.Navigator>
+          <MusicPlayer />
+        </NavigationContainer>
     );
   }
 };
@@ -95,6 +97,26 @@ const HomeScreen = ({ navigation, route }) => {
   // const getSongsFromAlbum = (artist, album) => {
   //   RNAndroidAudioStore.getSongs({ artist, album }).then(setAlbumSongs);
   // };
+
+  const playbackState = usePlaybackState();
+
+  const playSong = async (songs, index) => {
+    if (playbackState === State.Playing) {
+      await TrackPlayer.reset();
+    }
+
+    await TrackPlayer.add(songs.map(song => ({
+      url: `file://${song.path}`,
+      title: song.title,
+      artist: song.artist,
+      artwork: song.cover,
+      duration: song.duration,
+    })));
+    await TrackPlayer.skip(index);
+
+    TrackPlayer.play();
+  };
+
   const viewAlbumsFromArtist = artist => {
     RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
       navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => (viewSongsFromAlbum(album.author, album.album), console.log(album)) });
@@ -103,29 +125,28 @@ const HomeScreen = ({ navigation, route }) => {
 
   const viewSongsFromAlbum = (artist, album) => {
     RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
-      navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => navigation.navigate('MusicPlayer', { songs, index: i }) });
+      navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
     });
   };
 
-  // TODO: Look at https://www.npmjs.com/package/react-native-sound-player since TrackPlayer is not working properly...
-  const playSong = async song => {
-    if (!isTrackPlayerInit) return;
+  // const playSong = async song => {
+  //   if (!isTrackPlayerInit) return;
 
-    const url = `file://${song.path}`;
-    console.log(`playing ${url}`);
-    await TrackPlayer.add({
-      id: song.id,
-      url,
-      //type: 'default',
-      title: song.title,
-      album: song.album,
-      artist: song.artist,
-    });
+  //   const url = `file://${song.path}`;
+  //   console.log(`playing ${url}`);
+  //   await TrackPlayer.add({
+  //     id: song.id,
+  //     url,
+  //     //type: 'default',
+  //     title: song.title,
+  //     album: song.album,
+  //     artist: song.artist,
+  //   });
 
-    await TrackPlayer.play();
-    await TrackPlayer.pause();
-    setTimeout(() => TrackPlayer.play(), 1000);
-  };
+  //   await TrackPlayer.play();
+  //   await TrackPlayer.pause();
+  //   setTimeout(() => TrackPlayer.play(), 1000);
+  // };
 
   return (
     <View style={styles.container}>
