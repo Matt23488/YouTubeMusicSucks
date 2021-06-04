@@ -28,7 +28,7 @@ export const getToken = async () => {
     const expires = new Date();
     expires.setSeconds(expires.getSeconds() + response.expires_in - 30);
     currentToken.token = response.access_token;
-    currentToken.expires = expires;
+    currentToken.expires = expires.getTime();
 
     return currentToken.token;
 };
