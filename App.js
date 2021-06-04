@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, LogBox, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
 import Permissions from 'react-native-permissions';
 import TrackPlayer from 'react-native-track-player';
@@ -11,6 +11,15 @@ import MusicPlayer from './components/MusicPlayer';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
+/** @typedef {{ id: string | number } & { [key: string]: any }} ActionListItem */
+
+/**
+ * @typedef {Object} NavigationStackParamList
+ * @property {undefined} Home
+ * @property {{ items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
+ */
+
+/** @type {import('@react-navigation/core').TypedNavigator<NavigationStackParamList, any, any, any, any>} */
 const Stack = createStackNavigator();
 
 export default class App extends React.Component {
@@ -41,7 +50,13 @@ export default class App extends React.Component {
   }
 };
 
-const HomeScreen = ({ navigation, route }) => {
+/**
+ * 
+ * @param {Object} props
+ * @param {StackNavigationProp<NavigationStackParamList, 'Home'>} props.navigation
+ * @returns 
+ */
+const HomeScreen = ({ navigation }) => {
   const [[artists, albums/*, songs*/], setMusic] = React.useState([[], [], []]);
 
   React.useEffect(async () => {
@@ -50,7 +65,7 @@ const HomeScreen = ({ navigation, route }) => {
     //const getSongs = RNAndroidAudioStore.getSongs();
 
     const [artists, albums] = await Promise.all([getArtists, getAlbums/*, getSongs*/]);
-    console.log(artists, albums);
+    //console.log(artists, albums);
     artists.sort((a, b) => a.artist < b.artist ? -1 : a.artist > b.artist ? 1 : 0);
     albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
     setMusic([artists, albums]);
@@ -66,6 +81,11 @@ const HomeScreen = ({ navigation, route }) => {
   //   RNAndroidAudioStore.getSongs({ artist, album }).then(setAlbumSongs);
   // };
 
+  /**
+   * 
+   * @param {import('@yajanarao/react-native-get-music-files').Song[]} songs 
+   * @param {number} index 
+   */
   const playSong = async (songs, index) => {
     await TrackPlayer.reset();
     await TrackPlayer.add(songs.map(song => ({
@@ -80,17 +100,22 @@ const HomeScreen = ({ navigation, route }) => {
     TrackPlayer.play();
   };
 
-  const viewAlbumsFromArtist = artist => {
-    RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
-      albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
-      navigation.push('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
-    });
+  /** @type {(artist: string) => Promise<void>} */
+  const viewAlbumsFromArtist = async artist => {
+    const [albums, songs] = await Promise.all([RNAndroidAudioStore.getAlbums({ artist }), RNAndroidAudioStore.getSongs({ artist })]);
+    // RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
+    albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
+    navigation.push('ActionList', { items: albums.concat({ album: 'All Songs', author: artist, id: -1, numberOfSongs: songs.length }), getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
+    // });
   };
 
-  const viewSongsFromAlbum = (artist, album) => {
-    RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
-      navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
-    });
+  /** @type {(artist: string, album: string) => Promise<void>} */
+  const viewSongsFromAlbum = async (artist, album) => {
+    const songs = await RNAndroidAudioStore.getSongs({ artist, album: album === 'All Songs' ? undefined : album });
+    console.log(artist);
+    // RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
+    navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
+    // });
   };
 
   return (

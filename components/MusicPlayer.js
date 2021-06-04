@@ -4,6 +4,7 @@ import TrackPlayer, { Capability, Event, RepeatMode, State, usePlaybackState, us
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import * as spotify from '../spotify';
+import { useAsyncEffect } from '../hooks';
 
 const MusicPlayer = () => {
     const [expanded, setExpanded] = useState(false);
@@ -76,27 +77,23 @@ const MusicPlayer = () => {
         }
     };
 
-    useEffect(() => {
-        (async () => {
-            console.log('setup');
-            await TrackPlayer.setupPlayer({});
-            await TrackPlayer.updateOptions({
-                capabilities: [
-                    Capability.Play,
-                    Capability.Pause,
-                    Capability.SkipToNext,
-                    Capability.SkipToPrevious,
-                    Capability.Stop,
-                ],
-                compactCapabilities: [Capability.Play, Capability.Pause],
-            });
-            await TrackPlayer.setRepeatMode(RepeatMode.Queue);
-        })();
-
-        return async () => {
-            console.log('destroy');
-            await TrackPlayer.destroy();
-        };
+    useAsyncEffect(async () => {
+        console.log('setup');
+        await TrackPlayer.setupPlayer({});
+        await TrackPlayer.updateOptions({
+            capabilities: [
+                Capability.Play,
+                Capability.Pause,
+                Capability.SkipToNext,
+                Capability.SkipToPrevious,
+                Capability.Stop,
+            ],
+            compactCapabilities: [Capability.Play, Capability.Pause],
+        });
+        await TrackPlayer.setRepeatMode(RepeatMode.Queue);
+    }, async () => {
+        console.log('destroy');
+        await TrackPlayer.destroy();
     }, []);
 
     return (

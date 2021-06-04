@@ -7,6 +7,10 @@ const currentToken = {
     expires: Date.now(),
 };
 
+/**
+ * 
+ * @returns {Promise<string>}
+ */
 export const getToken = async () => {
     if (currentToken.token && currentToken.expires > Date.now()) return currentToken.token;
 
@@ -29,6 +33,14 @@ export const getToken = async () => {
     return currentToken.token;
 };
 
+/**
+ * 
+ * @param {Object} options
+ * @param {string} options.q
+ * @param {string[]} options.types
+ * @param {string} [options.token] 
+ * @returns {Promise<{}>}
+ */
 export const search = async ({ q, types, token }) => {
     return await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=${encodeURIComponent(types.join(','))}`, {
         method: 'GET',
