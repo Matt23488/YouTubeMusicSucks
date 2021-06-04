@@ -50,10 +50,11 @@ const HomeScreen = ({ navigation, route }) => {
     //const getSongs = RNAndroidAudioStore.getSongs();
 
     const [artists, albums] = await Promise.all([getArtists, getAlbums/*, getSongs*/]);
+    console.log(artists, albums);
     artists.sort((a, b) => a.artist < b.artist ? -1 : a.artist > b.artist ? 1 : 0);
     albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
     setMusic([artists, albums]);
-  });
+  }, []);
 
   // const [artistAlbums, setArtistAlbums] = React.useState([]);
   // const getAlbumsFromArtist = artist => {
