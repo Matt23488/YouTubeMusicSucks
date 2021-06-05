@@ -8,6 +8,7 @@ import TrackPlayer from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
 import MusicPlayer from './components/MusicPlayer';
+import OrganizationWizard from './screens/OrganizationWizard';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -17,6 +18,7 @@ LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state'
  * @typedef {Object} NavigationStackParamList
  * @property {undefined} Home
  * @property {{ items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
+ * @property {{}} OrganizationWizard
  */
 
 /** @type {import('@react-navigation/core').TypedNavigator<NavigationStackParamList, any, any, any, any>} */
@@ -43,6 +45,7 @@ export default class App extends React.Component {
           <Stack.Navigator>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="ActionList" component={ActionList} />
+            <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
           </Stack.Navigator>
           <MusicPlayer />
         </NavigationContainer>
@@ -127,6 +130,9 @@ const HomeScreen = ({ navigation }) => {
         {/* <Text style={{ flex: 1 }}>Songs found: {songs.length}</Text> */}
       </View>
       <View style={styles.main}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OrganizationWizard', {})}>
+          <Text>Organization Wizard</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
           <Text>Artists</Text>
         </TouchableOpacity>
