@@ -81,14 +81,17 @@ const MusicPlayer = () => {
         console.log('setup');
         await TrackPlayer.setupPlayer({});
         await TrackPlayer.updateOptions({
+            stopWithApp: true,
             capabilities: [
                 Capability.Play,
                 Capability.Pause,
                 Capability.SkipToNext,
                 Capability.SkipToPrevious,
                 Capability.Stop,
+                Capability.SeekTo,
             ],
-            compactCapabilities: [Capability.Play, Capability.Pause],
+            compactCapabilities: [Capability.Play, Capability.Pause, Capability.SeekTo,],
+            // notificationCapabilities: [Capability.Play, Capability.Pause, Capability.SeekTo,],
         });
         await TrackPlayer.setRepeatMode(RepeatMode.Queue);
     }, async () => {

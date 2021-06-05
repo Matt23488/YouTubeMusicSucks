@@ -20,4 +20,9 @@ module.exports = async function () {
     TrackPlayer.addEventListener('remote-stop', () => {
       TrackPlayer.destroy();
     });
+
+    TrackPlayer.addEventListener('remote-seek', () => {
+      console.log('remote-seek args', arguments);
+      // TrackPlayer.seekTo()
+    })
 };
