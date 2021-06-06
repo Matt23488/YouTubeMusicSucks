@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, LogBox, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
@@ -9,6 +9,7 @@ import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
 import MusicPlayer from './components/MusicPlayer';
 import OrganizationWizard from './screens/OrganizationWizard';
+import { useAsyncEffect } from './hooks';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -23,35 +24,58 @@ LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state'
 
 /** @type {import('@react-navigation/core').TypedNavigator<NavigationStackParamList, any, any, any, any>} */
 const Stack = createStackNavigator();
+const App = () => {
+  const [state, setState] = useState({ loaded: false, error: false });
 
-export default class App extends React.Component {
-  state = {
-    loaded: false,
-    error: false,
-  };
-
-  async componentDidMount() {
+  useAsyncEffect(async () => {
     const storagePermission = await Permissions.request(Permissions.PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
     const error = storagePermission !== Permissions.RESULTS.GRANTED;
+    setState({ loaded: true, error });
+  }, null, []);
 
-    this.setState({ loaded: true, error });
-  }
+  if (!state.loaded) return null;
 
-  render() {
-    if (!this.state.loaded) return null;
-
-    return (
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="ActionList" component={ActionList} />
-            <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
-          </Stack.Navigator>
-          <MusicPlayer />
-        </NavigationContainer>
-    );
-  }
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="ActionList" component={ActionList} />
+        <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
+      </Stack.Navigator>
+      <MusicPlayer />
+    </NavigationContainer>
+  );
 };
+
+export default App;
+// export default class App extends React.Component {
+//   state = {
+//     loaded: false,
+//     error: false,
+//   };
+
+//   async componentDidMount() {
+//     const storagePermission = await Permissions.request(Permissions.PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+//     const error = storagePermission !== Permissions.RESULTS.GRANTED;
+
+//     this.setState({ loaded: true, error });
+//   }
+
+//   render() {
+//     if (!this.state.loaded) return null;
+
+//     return (
+//         <NavigationContainer>
+//           <Stack.Navigator>
+//             <Stack.Screen name="Home" component={HomeScreen} />
+//             <Stack.Screen name="ActionList" component={ActionList} />
+//             <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
+//           </Stack.Navigator>
+//           <MusicPlayer />
+//         </NavigationContainer>
+//     );
+//   }
+// };
 
 /**
  * 
@@ -97,6 +121,7 @@ const HomeScreen = ({ navigation }) => {
       artist: song.artist,
       artwork: song.cover,
       duration: song.duration,
+      album: song.album,
     })));
     await TrackPlayer.skip(index);
 

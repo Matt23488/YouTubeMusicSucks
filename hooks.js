@@ -11,7 +11,7 @@ export const useAsyncEffect = (asyncCallback, cleanup, deps) => {
         asyncCallback();
 
         return () => {
-            cleanup();
+            cleanup?.();
         };
     }, deps);
 };

@@ -99,6 +99,8 @@ const MusicPlayer = () => {
         await TrackPlayer.destroy();
     }, []);
 
+    const visibleStates = [State.Playing, State.Paused, State.Buffering];
+    if (!visibleStates.includes(playbackState)) return null;
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={toggleExpanded} style={styles.expandButton}>
