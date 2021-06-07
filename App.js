@@ -8,8 +8,8 @@ import TrackPlayer from 'react-native-track-player';
 import ActionList from './components/ActionList';
 import { useMusicStore } from './context/MusicStore';
 import MusicPlayer from './components/MusicPlayer';
-import OrganizationWizard from './screens/OrganizationWizard';
 import { useAsyncEffect } from './hooks';
+import { OrgAlbumEditor, OrgAlbumList, OrgAlbumSearch, OrgArtistList } from './screens/OrganizationWizard';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -18,8 +18,11 @@ LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state'
 /**
  * @typedef {Object} NavigationStackParamList
  * @property {undefined} Home
- * @property {{ items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
- * @property {{}} OrganizationWizard
+ * @property {{ title: string, items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
+ * @property {{  }} OrgArtistList
+ * @property {{ artist: string }} OrgAlbumList
+ * @property {{ artist: string, album: string }} OrgAlbumEditor
+ * @property {{ title: string }} OrgAlbumSearch
  */
 
 /** @type {import('@react-navigation/core').TypedNavigator<NavigationStackParamList, any, any, any, any>} */
@@ -38,9 +41,12 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="ActionList" component={ActionList} />
-        <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'YouTube Music Sucks!' }} />
+        <Stack.Screen name="ActionList" component={ActionList} options={({ route }) => ({ title: route.params.title })} />
+        <Stack.Screen name="OrgArtistList" component={OrgArtistList} options={{ title: 'Artists With Unorganized Music' }} />
+        <Stack.Screen name="OrgAlbumList" component={OrgAlbumList} options={({ route }) => ({ title: `${route.params.artist}'s Unorganized Music` })} />
+        <Stack.Screen name="OrgAlbumEditor" component={OrgAlbumEditor} />
+        <Stack.Screen name="OrgAlbumSearch" component={OrgAlbumSearch} />
       </Stack.Navigator>
       <MusicPlayer />
     </NavigationContainer>
@@ -133,7 +139,7 @@ const HomeScreen = ({ navigation }) => {
     const [albums, songs] = await Promise.all([RNAndroidAudioStore.getAlbums({ artist }), RNAndroidAudioStore.getSongs({ artist })]);
     // RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
     albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
-    navigation.push('ActionList', { items: albums.concat({ album: 'All Songs', author: artist, id: -1, numberOfSongs: songs.length }), getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
+    navigation.push('ActionList', { title: artist, items: albums.concat({ album: 'All Songs', author: artist, id: -1, numberOfSongs: songs.length }), getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
     // });
   };
 
@@ -142,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
     const songs = await RNAndroidAudioStore.getSongs({ artist, album: album === 'All Songs' ? undefined : album });
     console.log(artist);
     // RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
-    navigation.push('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
+    navigation.push('ActionList', { title: `${artist} - ${album}`, items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
     // });
   };
 
@@ -155,13 +161,13 @@ const HomeScreen = ({ navigation }) => {
         {/* <Text style={{ flex: 1 }}>Songs found: {songs.length}</Text> */}
       </View>
       <View style={styles.main}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OrganizationWizard', {})}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OrgArtistList', {})}>
           <Text>Organization Wizard</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'Artists', items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
           <Text>Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'Albums', items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) })}>
           <Text>Albums</Text>
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: alert })}>

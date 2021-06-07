@@ -38,8 +38,8 @@ export const getToken = async () => {
  * @param {Object} options
  * @param {string} options.q
  * @param {string[]} options.types
- * @param {string} [options.token] 
- * @returns {Promise<{}>}
+ * @param {string=} options.token
+ * @returns {Promise<SpotifySearchResponse>}
  */
 export const search = async ({ q, types, token }) => {
     return await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=${encodeURIComponent(types.join(','))}`, {
@@ -51,3 +51,77 @@ export const search = async ({ q, types, token }) => {
         },
     }).then(r => r.json());
 };
+
+/**
+ * 
+ * @param {Object} options
+ * @param {string} options.album
+ * @param {string=} options.token
+ * @returns {Promise<SpotifyAlbum & { tracks: SpotifyPagedCollection<SpotifyTrack> }>}
+ */
+export const getAlbumTrackList = async ({ album, token }) => {
+    const href = album.startsWith('https://api.spotify.com/v1/albums/') ? album : `https://api.spotify.com/v1/albums/${album}`;
+    return await fetch(href, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token || await getToken()}`,
+        },
+    }).then(r => r.json());
+}
+
+/**
+ * @typedef {Object} SpotifySearchResponse
+ * @property {SpotifyPagedCollection<SpotifyArtist>=} artists
+ * @property {SpotifyPagedCollection<SpotifyAlbum>=} albums
+ * @property {SpotifyPagedCollection<SpotifyTrack>=} tracks
+ */
+
+/**
+ * @template T
+ * @typedef {Object} SpotifyPagedCollection
+ * @property {T[]} items
+ * @property {number} limit
+ * @property {string} href
+ * @property {string} next
+ * @property {number} offset
+ * @property {string} previous
+ * @property {number} total
+ */
+
+/**
+ * @typedef {Object} SpotifyAlbum
+ * @property {string} id
+ * @property {string} name
+ * @property {number} total_tracks
+ * @property {string} uri
+ * @property {string} href
+ * @property {SpotifyArtist[]} artists
+ * @property {SpotifyImage[]} images
+ */
+
+/**
+ * @typedef {Object} SpotifyArtist
+ * @property {string} id
+ * @property {string} name
+ * @property {string} uri
+ */
+
+/**
+ * @typedef {Object} SpotifyImage
+ * @property {string} url
+ * @property {number} width
+ * @property {number} height
+ */
+
+/**
+ * @typedef {Object} SpotifyTrack
+ * @property {string} id
+ * @property {string} name
+ * @property {SpotifyAlbum} album
+ * @property {SpotifyArtist[]} artists
+ * @property {boolean} explicit
+ * @property {number} track_number
+ * @property {string} uri
+ */
