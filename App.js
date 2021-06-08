@@ -21,7 +21,7 @@ LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state'
  * @property {{ title: string, items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
  * @property {{  }} OrgArtistList
  * @property {{ artist: string }} OrgAlbumList
- * @property {{ artist: string, album: string }} OrgAlbumEditor
+ * @property {{ artist: string, album: string, trackList: any[] }} OrgAlbumEditor
  * @property {{ title: string }} OrgAlbumSearch
  */
 

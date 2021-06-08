@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
@@ -75,11 +76,12 @@ export const OrgArtistList = ({ navigation, asdf }) => {
  * @param {Object} props 
  * @param {StackNavigationProp<import('../App').NavigationStackParamList, 'OrgAlbumEditor'>} props.navigation
  * @param {import('@react-navigation/core').RouteProp<import('../App').NavigationStackParamList, 'OrgAlbumEditor'>} props.route
- * @param {string[]} props.trackList
  * @returns {React.ReactNode}
  */
-export const OrgAlbumEditor = ({ route, trackList }) => {
+export const OrgAlbumEditor = ({ route }) => {
     const [state, setState] = useState({ uri: '', artist: route.params.artist, album: route.params.album, tracks: [] });
+    const [trackOrder, setTrackOrder] = useState(route.params.trackList.map((_, i) => i));
+    //console.log(trackOrder);
     useAsyncEffect(async () => {
         const result = await spotify.search({ q: route.params.album, types: ['album'] });
         const matches = orderByCloseness(result.albums.items, `${route.params.artist}|${route.params.album}`, obj => `${obj.artists[0].name}|${obj.name}`);
@@ -91,16 +93,61 @@ export const OrgAlbumEditor = ({ route, trackList }) => {
         setState({ uri: matches[0]?.images?.[0]?.url, artist: matches[0]?.artists?.[0]?.name, album: matches[0]?.name, tracks });
     }, null, []);
 
+    /** @type {(i: number) => void} */
+    const moveTrackUp = i => {
+        console.log(trackOrder);
+        const idx = trackOrder[i];
+        if (idx === 0) return;
+        const j = trackOrder.indexOf(idx - 1);
+        trackOrder[i]--;
+        trackOrder[j]++;
+        setTrackOrder(trackOrder);
+    };
+
+    /** @type {(i: number) => void} */
+    const moveTrackDown = i => {
+        console.log(trackOrder);
+        const idx = trackOrder[i];
+        if (idx === route.params.trackList.length - 1) return;
+        const j = trackOrder.indexOf(idx + 1);
+        trackOrder[i]++;
+        trackOrder[j]--;
+        // console.log(trackOrder);
+        setTrackOrder(trackOrder);
+    };
+
     // if (image) return <Image style={styles.artwork} source={{ uri: image }} />
     // else return <Text>Not Found</Text>;
     return (
-        <ScrollView style={{  }}>
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
             {state.uri ? <Image style={styles.artwork} source={{ uri: state.uri }} /> : null}
             <Text>{state.artist ?? route.params.artist}</Text>
             <Text>{state.album ?? route.params.album}</Text>
-            {state.tracks.map(t => (
+            {/* {state.tracks.map(t => (
                 <Text key={t.trackNum}>{t.trackNum}. {t.trackName}</Text>
             ))}
+            {route.params.trackList.map(t => <Text key={t.id}>{t.title}</Text>)} */}
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+                <View>
+                    <Text style={{ fontWeight: 'bold' }}>Album Track List</Text>
+                    {state.tracks.map(t => (
+                        <Text key={t.trackNum}>{t.trackNum}. {t.trackName}</Text>
+                    ))}
+                </View>
+                <View>
+                    <Text style={{ fontWeight: 'bold' }}>Your Songs</Text>
+                    <OrderedList items={route.params.trackList} ordering={trackOrder} getText={obj => obj.title} onTrackUp={moveTrackUp} onTrackDown={moveTrackDown} />
+                    {/* {trackOrder.map(i => route.params.trackList[i]).map((t, i) => (
+                        <View key={t.path} style={{ borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text>{t.title}</Text>
+                            <View>
+                                <TouchableOpacity style={{ borderWidth: 1 }} onPress={() => moveTrackUp(i)}><Icon name="sort-up" size={16} /></TouchableOpacity>
+                                <TouchableOpacity style={{ borderWidth: 1 }} onPress={() => moveTrackDown(i)}><Icon name="sort-down" size={16} /></TouchableOpacity>
+                            </View>
+                        </View>
+                    ))} */}
+                </View>
+            </View>
         </ScrollView>
     )
 };
@@ -122,14 +169,45 @@ export const OrgAlbumList = ({ navigation, route }) => {
         RNAndroidAudioStore.getAlbums({ artist: route.params.artist }).then(albums => albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0)).then(setAlbums);
     }, []);
 
+    /** @type {(album: any) => Promise<void>} */
+    const editAlbum = async album => {
+        const trackList = await RNAndroidAudioStore.getSongs({ artist: album.author, album: album.album });
+        navigation.navigate('OrgAlbumEditor', { artist: album.author, album: album.album, trackList });
+    };
+
     return (
         <ScrollView>
             {albums.map(a => (
-                <TouchableOpacity key={a.id} style={styles.artist} onPress={() => navigation.navigate('OrgAlbumEditor', { artist: a.author, album: a.album })}>
+                <TouchableOpacity key={a.id} style={styles.artist} onPress={() => editAlbum(a)}>
                     <Text>{a.album}</Text>
                 </TouchableOpacity>
             ))}
         </ScrollView>
+    );
+};
+
+/**
+ * @template T
+ * @param {Object} props
+ * @param {T[]} props.items
+ * @param {number[]} props.ordering
+ * @param {(obj: T) => string} props.getText
+ * @param {(i: number) => void} props.onTrackUp
+ * @param {(i: number) => void} props.onTrackDown
+ */
+const OrderedList = ({ items, ordering, getText, onTrackUp, onTrackDown }) => {
+    return (
+        <View>
+            {ordering.map(i => items[i]).map((obj, i) => (
+                <View key={i} style={{ borderWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text>{getText(obj)}</Text>
+                    <View>
+                        <TouchableOpacity style={{ borderWidth: 1 }} onPress={() => onTrackUp(i)}><Icon name="sort-up" size={16} /></TouchableOpacity>
+                        <TouchableOpacity style={{ borderWidth: 1 }} onPress={() => onTrackDown(i)}><Icon name="sort-down" size={16} /></TouchableOpacity>
+                    </View>
+                </View>
+            ))}
+        </View>
     );
 };
 
