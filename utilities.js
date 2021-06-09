@@ -168,15 +168,15 @@ const dispatchMusicChanged = () => {
  * @property {string[]} tracks
  */
 
-/** @type {(predicate: (track: YtmsTrack, index: number, tracks: YtmsTrack[]) => boolean) => YtmsTrack[]} */
-export const useTracks = (predicate = () => true) => {
-    const [tracks, setTracks] = useState(storedData.tracks);
-    useEffect(() => {
-        setTracks(storedData.tracks.filter(predicate));
-    }, [storedData.tracks]);
+// /** @type {(predicate: (track: YtmsTrack, index: number, tracks: YtmsTrack[]) => boolean) => YtmsTrack[]} */
+// export const useTracks = (predicate = () => true) => {
+//     const [tracks, setTracks] = useState(storedData.tracks);
+//     useEffect(() => {
+//         setTracks(storedData.tracks.filter(predicate));
+//     }, [storedData.tracks]);
 
-    return tracks;
-};
+//     return tracks;
+// };
 
 
 export const useMusic = () => {
