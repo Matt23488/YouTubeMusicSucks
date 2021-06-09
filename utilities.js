@@ -220,6 +220,7 @@ export const importSongs = async () => {
     const storedIds = storedData.tracks.map(s => s.trackID);
     const newSongs = allSongs.filter(s => !storedIds.includes(s.id));
 
+    console.log('new songs:', newSongs.length);
     if (newSongs.length === 0) return;
 
     /** @typedef {import('@yajanarao/react-native-get-music-files').Song} Song */
@@ -281,11 +282,20 @@ export const importSongs = async () => {
         };
     });
     
-    // TODO: Actually merge the songs instead of appending outright
-    storedData.artists.push(...artistsWithNewSongs);
-    storedData.albums.push(...albumsWithNewSongs);
+    artistsWithNewSongs.forEach(artist => {
+        const existingArtist = storedData.artists.find(a => a.name.toLowerCase() === artist.name);
+        if (!existingArtist) storedData.artists.push(artist);
+        else existingArtist.tracks.push(...artist.tracks);
+        
+    });
+    
+    albumsWithNewSongs.forEach(album => {
+        const existingAlbum = storedData.albums.find(a => a.artistName.toLowerCase() === album.artistName && a.name.toLowerCase() === album.name)
+        if (!existingAlbum) storedData.albums.push(album);
+        else existingAlbum.tracks.push(...album.tracks);
+    });
+    
     storedData.tracks.push(...newTracks);
-
     const updatedData = Object.assign({}, storedData);
     storedDataChangedCallbacks.forEach(c => c(updatedData));
 };
