@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, LogBox, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
-import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';
+import RNAndroidAudioStore from '@yajanarao/react-native-get-music-files';import uuid from 'react-native-uuid';
 import Permissions from 'react-native-permissions';
 import TrackPlayer from 'react-native-track-player';
 import ActionList from './components/ActionList';
@@ -91,12 +91,12 @@ const HomeScreen = ({ navigation }) => {
   /** @type {(artist: import('./utilities').YtmsArtist) => Promise<void>} */
   const viewAlbumsFromArtist = async artist => {
     const artistAlbums = albums.filter(a => a.artistID === artist.artistID);
-    navigation.push('ActionList', { title: artist.name, items: artistAlbums, getDisplayText: album => album.name, getId: album => album.albumID, onItemPress: viewSongsFromAlbum });
+    navigation.push('ActionList', { title: artist.name, items: artistAlbums.concat({ albumID: 'all', artistID: artist.artistID, artistName: artist.name, name: 'All Songs', tracks: artist.tracks }), getDisplayText: album => album.name, getId: album => album.albumID, onItemPress: viewSongsFromAlbum });
   };
 
   /** @type {(album: import('./utilities').YtmsAlbum) => Promise<void>} */
   const viewSongsFromAlbum = async album => {
-    const albumSongs = tracks.filter(t => t.albumID === album.albumID);
+    const albumSongs = album.albumID === 'all' ? tracks.filter(t => t.artistID === album.artistID) : tracks.filter(t => t.albumID === album.albumID);
     navigation.push('ActionList', { title: `${album.artistName} - ${album.name}`, items: albumSongs, getDisplayText: song => song.name, getId: song => song.trackID, onItemPress: (song, i) => playSong(albumSongs, i) });
   };
 
