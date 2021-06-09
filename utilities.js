@@ -108,11 +108,17 @@ AsyncStorage.getItem(storageKey, (err, res) => {
         storedData.albums = parsed.albums;
         storedData.artists = parsed.artists;
         storedData.playlists = parsed.playlists;
+        dispatchMusicChanged();
     }
 });
 
 const saveData = async () => {
     await AsyncStorage.setItem(storageKey, JSON.stringify(storedData));
+};
+
+const dispatchMusicChanged = () => {
+    const updatedData = Object.assign({}, storedData);
+    storedDataChangedCallbacks.forEach(c => c(updatedData));
 };
 
 /**
@@ -296,8 +302,8 @@ export const importSongs = async () => {
     });
     
     storedData.tracks.push(...newTracks);
-    const updatedData = Object.assign({}, storedData);
-    storedDataChangedCallbacks.forEach(c => c(updatedData));
+    await saveData();
+    dispatchMusicChanged();
 };
 
 /**
