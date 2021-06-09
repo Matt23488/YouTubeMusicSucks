@@ -5,7 +5,7 @@ const ActionList = ({ navigation, route }) => {
     return (
         <ScrollView>
             {route.params.items.map((item, i) => (
-                <TouchableOpacity key={item.id} onPress={() => route.params.onItemPress(item, i)} style={styles.item}>
+                <TouchableOpacity key={route.params.getId(item)} onPress={() => route.params.onItemPress(item, i)} style={styles.item}>
                     <Text>{route.params.getDisplayText(item)}</Text>
                 </TouchableOpacity>
             ))}

@@ -21,24 +21,24 @@ const MusicPlayer = () => {
             //console.log(track);
 
             const {title, artist, artwork} = track || {};
-            try {
-                const results = await spotify.search({ q: title, types: ['track'] });
-                // TODO: Better matching. Tbh I should do it at the album level.
-                // actually I should build in functionality to update metadata on the music
-                // and cache it using async storage. Then just pull the track info from there to use here.
-                const match = results.tracks.items[0];
-                // console.log(match.name);
-                // console.log(match.artists[0].name);
-                // console.log(match.album.images[0].url);
-                setTrackTitle(match.name);
-                setTrackArtist(match.artists[0].name);
-                setTrackArtwork(match.album.images[0].url);
-            } catch (e) {
-                console.log(e);
+            // try {
+            //     const results = await spotify.search({ q: title, types: ['track'] });
+            //     // TODO: Better matching. Tbh I should do it at the album level.
+            //     // actually I should build in functionality to update metadata on the music
+            //     // and cache it using async storage. Then just pull the track info from there to use here.
+            //     const match = results.tracks.items[0];
+            //     // console.log(match.name);
+            //     // console.log(match.artists[0].name);
+            //     // console.log(match.album.images[0].url);
+            //     setTrackTitle(match.name);
+            //     setTrackArtist(match.artists[0].name);
+            //     setTrackArtwork(match.album.images[0].url);
+            // } catch (e) {
+            //     console.log(e);
                 setTrackTitle(title);
                 setTrackArtist(artist);
                 setTrackArtwork(artwork);
-            }
+            // }
 
         }
         else console.log(event);
@@ -70,7 +70,8 @@ const MusicPlayer = () => {
 
         if (backwards) {
             if (currentTrack === 0 && repeatMode === RepeatMode.Off) return;
-            TrackPlayer.skipToPrevious();
+            if (progress.position < 3) TrackPlayer.skipToPrevious();
+            else TrackPlayer.skip(currentTrack);
         } else {
             if (currentTrack === queue.length - 1 && repeatMode === RepeatMode.Off) return;
             TrackPlayer.skipToNext();

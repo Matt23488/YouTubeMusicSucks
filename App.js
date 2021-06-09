@@ -10,6 +10,7 @@ import { useMusicStore } from './context/MusicStore';
 import MusicPlayer from './components/MusicPlayer';
 import { useAsyncEffect } from './hooks';
 import { OrgAlbumEditor, OrgAlbumList, OrgAlbumSearch, OrgArtistList } from './screens/OrganizationWizard';
+import { useTracks, importSongs, useMusic } from './utilities';
 
 LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state' ]);
 
@@ -18,7 +19,7 @@ LogBox.ignoreLogs([ 'Non-serializable values were found in the navigation state'
 /**
  * @typedef {Object} NavigationStackParamList
  * @property {undefined} Home
- * @property {{ title: string, items: ActionListItem[], getDisplayText: (item: ActionListItem) => string, onItemPress: (item: ActionListItem, i: number) => void }} ActionList
+ * @property {{ title: string, items: Record<string, any>[], getDisplayText: (item: Record<string, any>) => string, getId: (item: Record<string, any>) => string, onItemPress: (item: Record<string, any>, i: number) => void }} ActionList
  * @property {{  }} OrgArtistList
  * @property {{ artist: string }} OrgAlbumList
  * @property {{ artist: string, album: string, trackList: any[] }} OrgAlbumEditor
@@ -43,10 +44,10 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'YouTube Music Sucks!' }} />
         <Stack.Screen name="ActionList" component={ActionList} options={({ route }) => ({ title: route.params.title })} />
-        <Stack.Screen name="OrgArtistList" component={OrgArtistList} options={{ title: 'Artists With Unorganized Music' }} />
+        {/* <Stack.Screen name="OrgArtistList" component={OrgArtistList} options={{ title: 'Artists With Unorganized Music' }} />
         <Stack.Screen name="OrgAlbumList" component={OrgAlbumList} options={({ route }) => ({ title: `${route.params.artist}'s Unorganized Music` })} />
         <Stack.Screen name="OrgAlbumEditor" component={OrgAlbumEditor} />
-        <Stack.Screen name="OrgAlbumSearch" component={OrgAlbumSearch} />
+        <Stack.Screen name="OrgAlbumSearch" component={OrgAlbumSearch} /> */}
       </Stack.Navigator>
       <MusicPlayer />
     </NavigationContainer>
@@ -54,34 +55,6 @@ const App = () => {
 };
 
 export default App;
-// export default class App extends React.Component {
-//   state = {
-//     loaded: false,
-//     error: false,
-//   };
-
-//   async componentDidMount() {
-//     const storagePermission = await Permissions.request(Permissions.PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
-//     const error = storagePermission !== Permissions.RESULTS.GRANTED;
-
-//     this.setState({ loaded: true, error });
-//   }
-
-//   render() {
-//     if (!this.state.loaded) return null;
-
-//     return (
-//         <NavigationContainer>
-//           <Stack.Navigator>
-//             <Stack.Screen name="Home" component={HomeScreen} />
-//             <Stack.Screen name="ActionList" component={ActionList} />
-//             <Stack.Screen name="OrganizationWizard" component = {OrganizationWizard} />
-//           </Stack.Navigator>
-//           <MusicPlayer />
-//         </NavigationContainer>
-//     );
-//   }
-// };
 
 /**
  * 
@@ -90,89 +63,66 @@ export default App;
  * @returns 
  */
 const HomeScreen = ({ navigation }) => {
-  const [[artists, albums/*, songs*/], setMusic] = React.useState([[], [], []]);
+  const { tracks, albums, artists } = useMusic();
 
-  React.useEffect(async () => {
-    const getArtists = RNAndroidAudioStore.getArtists();
-    const getAlbums = RNAndroidAudioStore.getAlbums();
-    //const getSongs = RNAndroidAudioStore.getSongs();
-
-    const [artists, albums] = await Promise.all([getArtists, getAlbums/*, getSongs*/]);
-    //console.log(artists, albums);
-    artists.sort((a, b) => a.artist < b.artist ? -1 : a.artist > b.artist ? 1 : 0);
-    albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
-    setMusic([artists, albums]);
-  }, []);
-
-  // const [artistAlbums, setArtistAlbums] = React.useState([]);
-  // const getAlbumsFromArtist = artist => {
-  //   RNAndroidAudioStore.getAlbums({ artist }).then(setArtistAlbums);
-  // };
-
-  // const [albumSongs, setAlbumSongs] = React.useState([]);
-  // const getSongsFromAlbum = (artist, album) => {
-  //   RNAndroidAudioStore.getSongs({ artist, album }).then(setAlbumSongs);
-  // };
+  artists.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
+  albums.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
 
   /**
    * 
-   * @param {import('@yajanarao/react-native-get-music-files').Song[]} songs 
+   * @param {import('./utilities').YtmsTrack[]} songs 
    * @param {number} index 
    */
   const playSong = async (songs, index) => {
     await TrackPlayer.reset();
-    await TrackPlayer.add(songs.map(song => ({
-      url: `file://${song.path}`,
-      title: song.title,
-      artist: song.artist,
-      artwork: song.cover,
+    await TrackPlayer.add(songs.map(song => (console.log(song.duration), {
+      url: `file://${song.filePath}`,
+      title: song.name,
+      artist: song.artistName,
+      artwork: albums.find(a => a.albumID === song.albumID)?.artworkURL,
       duration: song.duration,
-      album: song.album,
+      album: song.albumName,
     })));
     await TrackPlayer.skip(index);
 
     TrackPlayer.play();
   };
 
-  /** @type {(artist: string) => Promise<void>} */
+  /** @type {(artist: import('./utilities').YtmsArtist) => Promise<void>} */
   const viewAlbumsFromArtist = async artist => {
-    const [albums, songs] = await Promise.all([RNAndroidAudioStore.getAlbums({ artist }), RNAndroidAudioStore.getSongs({ artist })]);
-    // RNAndroidAudioStore.getAlbums({ artist }).then(albums => {
-    albums.sort((a, b) => a.album < b.album ? -1 : a.album > b.album ? 1 : 0);
-    navigation.push('ActionList', { title: artist, items: albums.concat({ album: 'All Songs', author: artist, id: -1, numberOfSongs: songs.length }), getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) });
-    // });
+    const artistAlbums = albums.filter(a => a.artistID === artist.artistID);
+    navigation.push('ActionList', { title: artist.name, items: artistAlbums, getDisplayText: album => album.name, getId: album => album.albumID, onItemPress: viewSongsFromAlbum });
   };
 
-  /** @type {(artist: string, album: string) => Promise<void>} */
-  const viewSongsFromAlbum = async (artist, album) => {
-    const songs = await RNAndroidAudioStore.getSongs({ artist, album: album === 'All Songs' ? undefined : album });
-    console.log(artist);
-    // RNAndroidAudioStore.getSongs({ artist, album }).then(songs => {
-    navigation.push('ActionList', { title: `${artist} - ${album}`, items: songs, getDisplayText: song => song.title, onItemPress: (song, i) => playSong(songs, i) });
-    // });
+  /** @type {(album: import('./utilities').YtmsAlbum) => Promise<void>} */
+  const viewSongsFromAlbum = async album => {
+    const albumSongs = tracks.filter(t => t.albumID === album.albumID);
+    navigation.push('ActionList', { title: `${album.artistName} - ${album.name}`, items: albumSongs, getDisplayText: song => song.name, getId: song => song.trackID, onItemPress: (song, i) => playSong(albumSongs, i) });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {/* <Text style={{ flex: 1 }} onPress={refreshMusic}>Load Music</Text> */}
         <Text style={{ flex: 1 }}>Artists found: {artists.length}</Text>
         <Text style={{ flex: 1 }}>Albums found: {albums.length}</Text>
-        {/* <Text style={{ flex: 1 }}>Songs found: {songs.length}</Text> */}
+        <Text style={{ flex: 1 }}>Songs found: {tracks.length}</Text>
       </View>
       <View style={styles.main}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OrgArtistList', {})}>
+        {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('OrgArtistList', {})}>
           <Text>Organization Wizard</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity style={styles.navItem} onPress={importSongs}>
+          <Text>Import New Music</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'Artists', items: artists, getDisplayText: artist => artist.artist, onItemPress: artist => viewAlbumsFromArtist(artist.artist) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'All Artists', items: artists, getDisplayText: artist => artist.name, getId: artist => artist.artistID, onItemPress: viewAlbumsFromArtist })}>
           <Text>Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'Albums', items: albums, getDisplayText: album => album.album, onItemPress: album => viewSongsFromAlbum(album.author, album.album) })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'All Albums', items: albums, getDisplayText: album => album.name, getId: album => album.albumID, onItemPress: viewSongsFromAlbum })}>
           <Text>Albums</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { items: songs, getDisplayText: song => song.title, onItemPress: alert })}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ActionList', { title: 'All Songs', items: tracks, getDisplayText: song => song.name, getId: song => song.trackID, onItemPress: (song, i) => playSong(tracks, i) })}>
           <Text>Songs</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </View>
   );
