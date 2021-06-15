@@ -9,6 +9,7 @@ import AlbumList from './screens/AlbumList';
 import { useMusic } from './utilities/storage';
 import ArtistList from './screens/ArtistList';
 import TrackList from './screens/TrackList';
+import AlbumEditor from './screens/AlbumEditor';
 
 const App = () => {
   const [state, setState] = useState({ loaded: false, error: false });
@@ -39,14 +40,27 @@ const App = () => {
     return { title };
   }
 
+  if (!state.loaded) return <Text>Loading...</Text>;
+  if (state.error) return <Text>:(</Text>;
 
   return (
     <NavigationContainer>
-      <YtmsNavigator.Navigator>
+      <YtmsNavigator.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#9f00ff',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            color: '#fff',
+          },
+        }}
+      >
         <YtmsNavigator.Screen name="Home" component={HomeScreen} options={{ title: 'YouTube Music Sucks!' }} />
         <YtmsNavigator.Screen name="ArtistList" component={ArtistList} options={{ title: 'All Artists' }} />
         <YtmsNavigator.Screen name="AlbumList" component={AlbumList} options={buildAlbumListOptions} />
         <YtmsNavigator.Screen name="TrackList" component={TrackList} options={buildTrackListOptions} />
+        <YtmsNavigator.Screen name="AlbumEditor" component={AlbumEditor} options={{ title: 'Album Search' }} />
       </YtmsNavigator.Navigator>
       <MusicPlayer />
     </NavigationContainer>

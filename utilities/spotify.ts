@@ -51,7 +51,7 @@ export const getAlbumTrackList = async (options: { album: string, token?: string
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${options.token || await getToken()}`,
         },
-    }).then(r => r.json());
+    }).then(r => r.json()) as { tracks: SpotifyPagedCollection<SpotifyTrack> };
 };
 
 interface SpotifySearchResponse {
@@ -60,7 +60,7 @@ interface SpotifySearchResponse {
     tracks?: SpotifyPagedCollection<SpotifyTrack>;
 }
 
-interface SpotifyPagedCollection<T> {
+export interface SpotifyPagedCollection<T> {
     items: T[];
     limit: number;
     href: string;
@@ -70,7 +70,7 @@ interface SpotifyPagedCollection<T> {
     total: number;
 }
 
-interface SpotifyAlbum {
+export interface SpotifyAlbum {
     id: string;
     name: string;
     total_tracks: number;
@@ -80,7 +80,7 @@ interface SpotifyAlbum {
     images: SpotifyImage[];
 }
 
-interface SpotifyArtist {
+export interface SpotifyArtist {
     id: string;
     name: string;
     uri: string;
@@ -92,7 +92,7 @@ interface SpotifyImage {
     height: number;
 }
 
-interface SpotifyTrack {
+export interface SpotifyTrack {
     id: string;
     name: string;
     album: SpotifyAlbum;

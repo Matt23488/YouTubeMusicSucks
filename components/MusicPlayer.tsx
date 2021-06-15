@@ -12,6 +12,7 @@ const MusicPlayer = () => {
     const [trackArtwork, setTrackArtwork] = useState<string>();
     const [trackTitle, setTrackTitle] = useState<string>();
     const [trackArtist, setTrackArtist] = useState<string>();
+    const [trackAlbum, setTrackAlbum] = useState<string>();
 
     useEffect(() => {
         console.log('setting up player');
@@ -45,6 +46,7 @@ const MusicPlayer = () => {
             setTrackTitle(track?.title);
             setTrackArtist(track?.artist);
             setTrackArtwork(track?.artwork as string);
+            setTrackAlbum(track?.album);
         }
         else console.log(event);
     });
@@ -84,31 +86,43 @@ const MusicPlayer = () => {
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => setExpanded(!expanded)} style={styles.expandButton}>
-                <Icon name="grip-lines" color="black" />
+                <Icon name="grip-lines" color="white" size={16} />
             </TouchableOpacity>
             <Image style={styles.artwork} source={{uri: `${trackArtwork}`}} />
-            <Text>{trackArtist && `${trackArtist} - `}{trackTitle || 'none'}</Text>
+            <Text style={{ color: '#fff' }}>{trackArtist && `${trackArtist} - `}{trackTitle || 'none'}</Text>
+            {/* <View style={styles.infoLine}>
+                <Icon name="music" color="white" size={16} />
+                <Text style={{}}>{trackTitle}</Text>
+            </View>
+            <View style={styles.infoLine}>
+                <Icon name="user" color="white" size={16} />
+                <Text style={{}}>{trackArtist}</Text>
+            </View>
+            <View style={styles.infoLine}>
+                <Icon name="compact-disc" color="white" size={16} />
+                <Text style={{}}>{trackAlbum}</Text>
+            </View> */}
             <Slider
                 style={styles.progressContainer}
                 value={progress.position}
                 minimumValue={0}
                 maximumValue={progress.duration}
-                thumbTintColor="#7f00ff"
-                minimumTrackTintColor="#7f00ff"
-                maximumTrackTintColor="black"
+                thumbTintColor="white"
+                minimumTrackTintColor="white"
+                maximumTrackTintColor="white"
                 onSlidingComplete={async value => {
                     await TrackPlayer.seekTo(value);
                 }}
             />
             <View style={styles.playbackControls}>
                 <TouchableWithoutFeedback onPress={() => skipTrack(true)}>
-                    <Icon name="step-backward" size={24} color="black" />
+                    <Icon name="step-backward" size={24} color="white" />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => togglePlayback()}>
-                    <Icon name={playbackState === State.Playing ? 'pause' : 'play'} size={24} color="black" />
+                    <Icon name={playbackState === State.Playing ? 'pause' : 'play'} size={24} color="white" />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => skipTrack(false)}>
-                    <Icon name="step-forward" size={24} color="black" />
+                    <Icon name="step-forward" size={24} color="white" />
                 </TouchableWithoutFeedback>
             </View>
         </View>
@@ -119,12 +133,12 @@ const collapsedStyles = StyleSheet.create({
     container: {
         width: '100%',
         height: 100,
-        backgroundColor: 'white',
+        backgroundColor: '#336',
         justifyContent: 'center',
         alignItems: 'center',
     },
     expandButton: {
-        backgroundColor: '#ccc',
+        backgroundColor: '#9f00ff',
         borderColor: 'transparent',
         borderBottomColor: '#333',
         borderWidth: 1,
@@ -147,6 +161,9 @@ const collapsedStyles = StyleSheet.create({
       width: '95%',
       flexDirection: 'row',
     },
+    infoLine: {
+        display: 'none',
+    },
 });
 
 const expandedStyles = StyleSheet.create({
@@ -163,6 +180,10 @@ const expandedStyles = StyleSheet.create({
       backgroundColor: 'grey',
     },
     progressContainer: collapsedStyles.progressContainer,
+    infoLine: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
 });
 
 export default MusicPlayer;

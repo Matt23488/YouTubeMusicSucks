@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NavigationProp } from '@react-navigation/core';
 import { StackNavigationProp } from '@react-navigation/stack';
 import TrackPlayer from 'react-native-track-player';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { importSongs, useMusic, YtmsAlbum, YtmsArtist, YtmsTrack } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
@@ -15,23 +16,27 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={{ flex: 1 }}>Artists found: {artists.length}</Text>
-                <Text style={{ flex: 1 }}>Albums found: {albums.length}</Text>
-                <Text style={{ flex: 1 }}>Tracks found: {tracks.length}</Text>
-            </View>
+            {/* <View style={styles.header}>
+                <Text style={{ flex: 1, color: 'white' }}>Artists found: {artists.length}</Text>
+                <Text style={{ flex: 1, color: 'white' }}>Albums found: {albums.length}</Text>
+                <Text style={{ flex: 1, color: 'white' }}>Tracks found: {tracks.length}</Text>
+            </View> */}
             <View style={styles.main}>
                 <TouchableOpacity style={styles.navItem} onPress={importSongs}>
-                    <Text>Import New Music</Text>
+                    <Icon name="file-import" size={24} color="white" />
+                    <Text style={styles.actionText}>Import New Music</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('ArtistList')}>
-                    <Text>Artists</Text>
+                    <Icon name="user" size={24} color="white" />
+                    <Text style={styles.actionText}>Artists</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('AlbumList', { artistId: 'all' })}>
-                    <Text>Albums</Text>
+                    <Icon name="compact-disc" size={24} color="white" />
+                    <Text style={styles.actionText}>Albums</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('TrackList', { artistId: 'all' })}>
-                    <Text>Tracks</Text>
+                    <Icon name="music" size={24} color="white" />
+                    <Text style={styles.actionText}>Tracks</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -41,9 +46,9 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#336',
+    padding: 10,
   },
 
   header: {
@@ -52,21 +57,20 @@ const styles = StyleSheet.create({
 
   main: {
     flex: 5,
-    // borderWidth: 1,
-    // borderColor: 'black',
     width: '100%',
   },
 
   navItem: {
-    height: 100,
-    borderWidth: 1,
-    borderColor: '#cccccc',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10,
   },
-
-  textInput: {
-    backgroundColor: '#000',
+  
+  actionText: {
+    marginLeft: 10,
+    color: 'white',
+    fontSize: 24,
   },
 });
 

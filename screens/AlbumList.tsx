@@ -5,16 +5,16 @@ import { StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useMusic, YtmsAlbum } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
-const AlbumList = (props: AlbumListProperties) => {
+const AlbumList = ({ route, navigation }: AlbumListProperties) => {
     const { albums } = useMusic();
 
-    const filter: (a: YtmsAlbum) => boolean = props.route.params.artistId === 'all' ? a => true : a => a.artistId === props.route.params.artistId;
+    const filter: (a: YtmsAlbum) => boolean = route.params.artistId === 'all' ? a => true : a => a.artistId === route.params.artistId;
 
     return (
-        <ScrollView>
+        <ScrollView style={styles.container}>
             {albums.filter(filter).map(album => (
-                <TouchableOpacity key={album.albumId} style={styles.item} onPress={() => props.navigation.navigate('TrackList', { artistId: album.artistId, albumId: album.albumId })}>
-                    <Text>{album.name}</Text>
+                <TouchableOpacity key={album.albumId} style={styles.item} onPress={() => navigation.navigate('TrackList', { artistId: album.artistId, albumId: album.albumId })}>
+                    <Text style={styles.itemText}>{album.name}</Text>
                 </TouchableOpacity>
             ))}
         </ScrollView>
@@ -22,12 +22,24 @@ const AlbumList = (props: AlbumListProperties) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#336',
+        padding: 10,
+    },
     item: {
-        borderColor: '#ccc',
-        borderWidth: 1,
-        padding: 20,
-        justifyContent: 'center',
+        // borderColor: '#ccc',
+        // borderWidth: 1,
+        // padding: 20,
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    itemText: {
+        color: '#fff',
+        fontSize: 24,
     },
 });
 

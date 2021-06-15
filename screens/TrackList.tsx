@@ -1,20 +1,33 @@
-import React from 'react';
-import { StyleSheet, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import TrackPlayer from 'react-native-track-player';
 import { useMusic, YtmsTrack } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const TrackList = (props: AlbumListProperties) => {
+const TrackList = ({ route, navigation }: TrackListProperties) => {
     const { tracks, albums } = useMusic();
 
+    useLayoutEffect(() => {
+        if (!route.params.albumId) return;
+
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('AlbumEditor', { albumId: route.params.albumId! })} style={{ marginRight: 16 }}>
+                    <Icon name="cog" color="#fff" size={24} />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
+
     const filter: (t: YtmsTrack) => boolean =
-        props.route.params.albumId ?
-            t => t.albumId === props.route.params.albumId :
-            props.route.params.artistId === 'all' ?
+        route.params.albumId ?
+            t => t.albumId === route.params.albumId :
+            route.params.artistId === 'all' ?
                 t => true :
-                t => t.artistId === props.route.params.artistId;
+                t => t.artistId === route.params.artistId;
 
     const playTrack = async (tracks: YtmsTrack[], index: number) => {
         await TrackPlayer.reset();
@@ -33,10 +46,10 @@ const TrackList = (props: AlbumListProperties) => {
     };
 
     return (
-        <ScrollView>
+        <ScrollView style={styles.container}>
             {tracks.filter(filter).map((track, i, tracks) => (
                 <TouchableOpacity key={track.trackId} style={styles.item} onPress={() => playTrack(tracks, i)}>
-                    <Text>{track.name}</Text>
+                    <Text style={styles.itemText}>{track.name}</Text>
                 </TouchableOpacity>
             ))}
         </ScrollView>
@@ -44,16 +57,28 @@ const TrackList = (props: AlbumListProperties) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#336',
+        padding: 10,
+    },
     item: {
-        borderColor: '#ccc',
-        borderWidth: 1,
-        padding: 20,
-        justifyContent: 'center',
+        // borderColor: '#ccc',
+        // borderWidth: 1,
+        // padding: 20,
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    itemText: {
+        color: '#fff',
+        fontSize: 24,
     },
 });
 
-interface AlbumListProperties {
+interface TrackListProperties {
     navigation: StackNavigationProp<YtmsNavigationParamList, 'TrackList'>;
     route: RouteProp<YtmsNavigationParamList, 'TrackList'>;
 }

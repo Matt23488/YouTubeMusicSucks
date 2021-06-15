@@ -5,14 +5,14 @@ import { StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useMusic } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
-const ArtistList = (props: AlbumListProperties) => {
+const ArtistList = ({ route, navigation }: ArtistListProperties) => {
     const { artists } = useMusic();
 
     return (
-        <ScrollView>
+        <ScrollView style={styles.container}>
             {artists.map(artist => (
-                <TouchableOpacity key={artist.artistId} style={styles.item} onPress={() => props.navigation.navigate('AlbumList', { artistId: artist.artistId })}>
-                    <Text>{artist.name}</Text>
+                <TouchableOpacity key={artist.artistId} style={styles.item} onPress={() => navigation.navigate('AlbumList', { artistId: artist.artistId })}>
+                    <Text style={styles.itemText}>{artist.name}</Text>
                 </TouchableOpacity>
             ))}
         </ScrollView>
@@ -20,16 +20,28 @@ const ArtistList = (props: AlbumListProperties) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#336',
+        padding: 10,
+    },
     item: {
-        borderColor: '#ccc',
-        borderWidth: 1,
-        padding: 20,
-        justifyContent: 'center',
+        // borderColor: '#ccc',
+        // borderWidth: 1,
+        // padding: 20,
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    itemText: {
+        color: '#fff',
+        fontSize: 24,
     },
 });
 
-interface AlbumListProperties {
+interface ArtistListProperties {
     navigation: StackNavigationProp<YtmsNavigationParamList, 'ArtistList'>;
     route: RouteProp<YtmsNavigationParamList, 'ArtistList'>;
 }
