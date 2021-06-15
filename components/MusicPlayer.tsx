@@ -3,52 +3,51 @@ import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, Vi
 import TrackPlayer, { Capability, Event, RepeatMode, State, usePlaybackState, useProgress, useTrackPlayerEvents } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import * as spotify from '../spotify';
-import { useAsyncEffect } from '../hooks';
 
 const MusicPlayer = () => {
     const [expanded, setExpanded] = useState(false);
     const playbackState = usePlaybackState();
     const progress = useProgress();
 
-    const [trackArtwork, setTrackArtwork] = useState();
-    const [trackTitle, setTrackTitle] = useState();
-    const [trackArtist, setTrackArtist] = useState();
-  
+    const [trackArtwork, setTrackArtwork] = useState<string>();
+    const [trackTitle, setTrackTitle] = useState<string>();
+    const [trackArtist, setTrackArtist] = useState<string>();
+
+    useEffect(() => {
+        console.log('setting up player');
+        TrackPlayer.setupPlayer({}).then(async () => {
+            console.log('player setup complete');
+            await TrackPlayer.updateOptions({
+                stopWithApp: true,
+                capabilities: [
+                    Capability.Play,
+                    Capability.Pause,
+                    Capability.SkipToNext,
+                    Capability.SkipToPrevious,
+                    Capability.Stop,
+                    Capability.SeekTo,
+                ],
+                compactCapabilities: [Capability.Play, Capability.Pause],
+            });
+            await TrackPlayer.setRepeatMode(RepeatMode.Queue);
+        });
+
+        return () => {
+            TrackPlayer.destroy();
+        };
+    }, []);
+
     useTrackPlayerEvents([Event.PlaybackTrackChanged, Event.PlaybackError], async event => {
-        if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
+        if (event.type === Event.PlaybackTrackChanged && typeof event.nextTrack === 'number') {
             const track = await TrackPlayer.getTrack(event.nextTrack);
-            //console.log(track);
 
-            const {title, artist, artwork} = track || {};
-            // try {
-            //     const results = await spotify.search({ q: title, types: ['track'] });
-            //     // TODO: Better matching. Tbh I should do it at the album level.
-            //     // actually I should build in functionality to update metadata on the music
-            //     // and cache it using async storage. Then just pull the track info from there to use here.
-            //     const match = results.tracks.items[0];
-            //     // console.log(match.name);
-            //     // console.log(match.artists[0].name);
-            //     // console.log(match.album.images[0].url);
-            //     setTrackTitle(match.name);
-            //     setTrackArtist(match.artists[0].name);
-            //     setTrackArtwork(match.album.images[0].url);
-            // } catch (e) {
-            //     console.log(e);
-                setTrackTitle(title);
-                setTrackArtist(artist);
-                setTrackArtwork(artwork);
-            // }
-
+            // const { title, artist, artwork } = track ?? {};
+            setTrackTitle(track?.title);
+            setTrackArtist(track?.artist);
+            setTrackArtwork(track?.artwork as string);
         }
         else console.log(event);
     });
-
-    const styles = expanded ? expandedStyles : collapsedStyles;
-
-    const toggleExpanded = () => {
-        setExpanded(!expanded);
-    };
     
     const togglePlayback = async () => {
         const currentTrack = await TrackPlayer.getCurrentTrack();
@@ -63,7 +62,7 @@ const MusicPlayer = () => {
         }
     };
 
-    const skipTrack = async backwards => {
+    const skipTrack = async (backwards: boolean) => {
         // TODO: getRepeatMode() was not working on the Java side it seems
         const [currentTrack, queue, repeatMode] = await Promise.all([TrackPlayer.getCurrentTrack(), TrackPlayer.getQueue(), Promise.resolve(RepeatMode.Queue)]);
         if (currentTrack === null) return;
@@ -78,33 +77,13 @@ const MusicPlayer = () => {
         }
     };
 
-    useAsyncEffect(async () => {
-        console.log('setup');
-        await TrackPlayer.setupPlayer({});
-        await TrackPlayer.updateOptions({
-            stopWithApp: true,
-            capabilities: [
-                Capability.Play,
-                Capability.Pause,
-                Capability.SkipToNext,
-                Capability.SkipToPrevious,
-                Capability.Stop,
-                Capability.SeekTo,
-            ],
-            compactCapabilities: [Capability.Play, Capability.Pause, Capability.SeekTo,],
-            // notificationCapabilities: [Capability.Play, Capability.Pause, Capability.SeekTo,],
-        });
-        await TrackPlayer.setRepeatMode(RepeatMode.Queue);
-    }, async () => {
-        console.log('destroy');
-        await TrackPlayer.destroy();
-    }, []);
+    // const visibleStates = [State.Playing, State.Paused, State.Buffering];
+    // if (!visibleStates.includes(playbackState)) return null;
 
-    const visibleStates = [State.Playing, State.Paused, State.Buffering];
-    if (!visibleStates.includes(playbackState)) return null;
+    const styles = expanded ? expandedStyles : collapsedStyles;
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={toggleExpanded} style={styles.expandButton}>
+            <TouchableOpacity onPress={() => setExpanded(!expanded)} style={styles.expandButton}>
                 <Icon name="grip-lines" color="black" />
             </TouchableOpacity>
             <Image style={styles.artwork} source={{uri: `${trackArtwork}`}} />
@@ -125,7 +104,7 @@ const MusicPlayer = () => {
                 <TouchableWithoutFeedback onPress={() => skipTrack(true)}>
                     <Icon name="step-backward" size={24} color="black" />
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => togglePlayback(playbackState)}>
+                <TouchableWithoutFeedback onPress={() => togglePlayback()}>
                     <Icon name={playbackState === State.Playing ? 'pause' : 'play'} size={24} color="black" />
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => skipTrack(false)}>

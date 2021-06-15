@@ -3,7 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'youtubemusicsucks' do
+target 'youtubemusicsucksts' do
   config = use_native_modules!
 
   use_react_native!(
@@ -12,9 +12,7 @@ target 'youtubemusicsucks' do
     :hermes_enabled => false
   )
 
-  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
-
-  target 'youtubemusicsucksTests' do
+  target 'youtubemusicsuckstsTests' do
     inherit! :complete
     # Pods for testing
   end
