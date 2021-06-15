@@ -8,6 +8,8 @@ import { YtmsNavigationParamList } from './YtmsNavigator';
 const ArtistList = ({ route, navigation }: ArtistListProperties) => {
     const { artists } = useMusic();
 
+    artists.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+
     return (
         <ScrollView style={styles.container}>
             {artists.map(artist => (

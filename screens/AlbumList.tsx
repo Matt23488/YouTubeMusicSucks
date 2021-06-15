@@ -1,6 +1,6 @@
+import React, { useLayoutEffect } from 'react';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React from 'react';
 import { StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useMusic, YtmsAlbum } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
@@ -8,7 +8,14 @@ import { YtmsNavigationParamList } from './YtmsNavigator';
 const AlbumList = ({ route, navigation }: AlbumListProperties) => {
     const { albums } = useMusic();
 
+    // useLayoutEffect(() => {
+    //     navigation.setOptions({
+    //         headerRight:
+    //     })
+    // }, [navigation]);
+
     const filter: (a: YtmsAlbum) => boolean = route.params.artistId === 'all' ? a => true : a => a.artistId === route.params.artistId;
+    albums.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 
     return (
         <ScrollView style={styles.container}>
