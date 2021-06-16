@@ -44,14 +44,6 @@ const editDistance = (s1: string, s2: string) => {
     return costs[s2.length];
 };
 
-/**
- * @template T
- * @param {T[]} arrA 
- * @param {T[] | string[] | string} arrB 
- * @param {(obj: T) => string} [accessor]
- * @param {boolean=} descending 
- * @returns {T[]}
- */
 export const orderByCloseness = <T>(arrA: T[], arrB: T[] | string[] | string, accessor: (obj: T) => string = obj => obj as unknown as string, descending = true) => {
     const getComparisonVal = (i: number) => {
         if (typeof arrB === 'string') return arrB;

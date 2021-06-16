@@ -12,9 +12,6 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
     const { navigation } = props;
     const [{ tracks, albums, playlists, artists }] = useMusic();
 
-    // artists.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
-    // albums.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
-
     return (
         <View style={styles.container}>
             <View style={styles.main}>
