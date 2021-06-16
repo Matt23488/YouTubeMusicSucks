@@ -10,6 +10,8 @@ import { useMusic } from './utilities/storage';
 import ArtistList from './screens/ArtistList';
 import TrackList from './screens/TrackList';
 import AlbumEditor from './screens/AlbumEditor';
+import ArtistEditor from './screens/ArtistEditor';
+import TrackEditor from './screens/TrackEditor';
 
 const App = () => {
   const [state, setState] = useState({ loaded: false, error: false });
@@ -27,10 +29,10 @@ const App = () => {
 
   const buildAlbumListOptions = ({route}: { route: RouteProp<YtmsNavigationParamList, 'AlbumList'> }) => {
     const artist = artists.find(a => a.artistId === route.params.artistId)?.name;
-    return ({
+    return {
       title: artist ?? 'All Albums'
-    });
-  }
+    };
+  };
 
   const buildTrackListOptions = ({route}: { route: RouteProp<YtmsNavigationParamList, 'TrackList'> }) => {    
     const artist = artists.find(a => a.artistId === route.params.artistId)?.name;
@@ -61,6 +63,8 @@ const App = () => {
         <YtmsNavigator.Screen name="AlbumList" component={AlbumList} options={buildAlbumListOptions} />
         <YtmsNavigator.Screen name="TrackList" component={TrackList} options={buildTrackListOptions} />
         <YtmsNavigator.Screen name="AlbumEditor" component={AlbumEditor} options={{ title: 'Album Search' }} />
+        <YtmsNavigator.Screen name="ArtistEditor" component={ArtistEditor} options={{ title: 'Edit Artist Name' }} />
+        <YtmsNavigator.Screen name="TrackEditor" component={TrackEditor} options={{ title: 'Edit Track' }} />
       </YtmsNavigator.Navigator>
       <MusicPlayer />
     </NavigationContainer>

@@ -13,7 +13,12 @@ const ArtistList = ({ route, navigation }: ArtistListProperties) => {
     return (
         <ScrollView style={styles.container}>
             {artists.map(artist => (
-                <TouchableOpacity key={artist.artistId} style={styles.item} onPress={() => navigation.navigate('AlbumList', { artistId: artist.artistId })}>
+                <TouchableOpacity
+                    key={artist.artistId}
+                    style={styles.item}
+                    onPress={() => navigation.navigate('AlbumList', { artistId: artist.artistId })}
+                    onLongPress={() => navigation.navigate('ArtistEditor', { artistId: artist.artistId })}
+                >
                     <Text style={styles.itemText}>{artist.name}</Text>
                 </TouchableOpacity>
             ))}

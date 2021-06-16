@@ -40,12 +40,16 @@ const TrackList = ({ route, navigation }: TrackListProperties) => {
         TrackPlayer.play();
     };
 
+    const editTrack = (tracks: YtmsTrack[], index: number) => {
+        navigation.navigate('TrackEditor', { trackId: tracks[index].trackId });
+    };
+
     return (
         <ScrollView style={styles.container}>
             {album ?
-                <AlbumTrackList album={album} onTrackPressed={playTrack} /> : playlist ?
-                <PlaylistTrackList playlist={playlist} onTrackPressed={playTrack} /> :
-                <AllTrackList onTrackPressed={i => playTrack(tracks, i)} />}
+                <AlbumTrackList album={album} onTrackPressed={playTrack} onTrackLongPressed={editTrack} /> : playlist ?
+                <PlaylistTrackList playlist={playlist} onTrackPressed={playTrack} onTrackLongPressed={editTrack} /> :
+                <AllTrackList onTrackPressed={playTrack} onTrackLongPressed={editTrack} />}
         </ScrollView>
     );
 };
@@ -56,7 +60,7 @@ const AlbumTrackList = (props: AlbumTrackListProperties) => {
         <>
             {props.album.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((track, i, tracks) => (
                 <View key={i} style={styles.item}>
-                    <TouchableOpacity style={styles.selectTrackBtn} onPress={() => props.onTrackPressed(tracks, i)}>
+                    <TouchableOpacity style={styles.selectTrackBtn} onPress={() => props.onTrackPressed(tracks, i)} onLongPress={() => props.onTrackLongPressed(tracks, i)}>
                         <Text style={styles.itemText}>{track.name}</Text>
                     </TouchableOpacity>
                     <View style={styles.reorderContainer}>
@@ -79,7 +83,7 @@ const PlaylistTrackList = (props: PlaylistTrackListProperties) => {
         <>
             {props.playlist.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((track, i, tracks) => (
                 <View key={i} style={styles.item}>
-                    <TouchableOpacity style={styles.selectTrackBtn} onPress={() => props.onTrackPressed(tracks, i)}>
+                    <TouchableOpacity style={styles.selectTrackBtn} onPress={() => props.onTrackPressed(tracks, i)} onLongPress={() => props.onTrackLongPressed(tracks, i)}>
                         <Text style={styles.itemText}>{track.name}</Text>
                     </TouchableOpacity>
                     <View style={styles.reorderContainer}>
@@ -102,7 +106,7 @@ const AllTrackList = (props: AllTrackListProperties) => {
         <>
             {tracks.map((track, i) => (
                 <View key={i} style={styles.item}>
-                    <TouchableOpacity onPress={() => props.onTrackPressed(i)}>
+                    <TouchableOpacity onPress={() => props.onTrackPressed(tracks, i)} onLongPress={() => props.onTrackLongPressed(tracks, i)}>
                         <Text style={styles.itemText}>{track.name}</Text>
                     </TouchableOpacity>
                 </View>
@@ -148,18 +152,20 @@ interface TrackListProperties {
     route: RouteProp<YtmsNavigationParamList, 'TrackList'>;
 }
 
-interface AlbumTrackListProperties {
+interface CommonListProperties {
+    onTrackPressed: (tracks: YtmsTrack[], i: number) => void;
+    onTrackLongPressed: (tracks: YtmsTrack[], i: number) => void;
+}
+
+interface AlbumTrackListProperties extends CommonListProperties {
     album: YtmsAlbum;
-    onTrackPressed: (tracks: YtmsTrack[], i: number) => void;
 }
 
-interface PlaylistTrackListProperties {
+interface PlaylistTrackListProperties extends CommonListProperties {
     playlist: YtmsPlaylist;
-    onTrackPressed: (tracks: YtmsTrack[], i: number) => void;
 }
 
-interface AllTrackListProperties {
-    onTrackPressed: (i: number) => void;
+interface AllTrackListProperties extends CommonListProperties {
 }
 
 export default TrackList;

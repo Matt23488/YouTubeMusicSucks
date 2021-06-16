@@ -44,16 +44,17 @@ const AlbumEditor = ({ navigation, route }: AlbumEditorProperties) => {
         album.name = tempName;
         album.spotifyId = spotifySelection?.id;
         album.artworkUrl = spotifySelection?.images?.[0]?.url;
+        if (timeoutHandle) clearTimeout(timeoutHandle);
         saveChanges();
         navigation.pop();
     };
 
     return (
         <View style={styles.container}>
-            <TextInput style={{ borderBottomWidth: 1, fontSize: 24, color: 'white', borderColor: 'white', }} defaultValue={tempName} onChangeText={onChangeTempName} />
-            <View style={{ flexGrow: 1, flexShrink: 1, borderWidth: 1, borderColor: 'white', padding: 10, marginTop: 10, }}>
-                <Text style={{ color: 'white', fontSize: 24, textAlign: 'center' }}>Artwork Search</Text>
-                <ScrollView style={{ flexGrow: 1, }}>
+            <TextInput style={styles.textInput} defaultValue={tempName} onChangeText={onChangeTempName} />
+            <View style={styles.spotifyResultsContainer}>
+                <Text style={styles.spotifyResultsHeading}>Artwork Search</Text>
+                <ScrollView style={styles.spotifyResultsList}>
                     <SpotifyResult selected={!spotifySelection} onPressed={setSpotifySelection} />
                     {spotifySelection && <SpotifyResult album={spotifySelection} selected={true} />}
                     {spotifyResults.filter(a => a.id !== spotifySelection?.id).map((a, i) => (
@@ -61,22 +62,24 @@ const AlbumEditor = ({ navigation, route }: AlbumEditorProperties) => {
                     ))}
                 </ScrollView>
             </View>
-            <TouchableOpacity onPress={saveAlbum} style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10, backgroundColor: '#9f00ff', padding: 10, }}><Text style={{ fontSize: 24, color: 'white' }}>Save</Text></TouchableOpacity>
+            <TouchableOpacity onPress={saveAlbum} style={styles.saveBtn}>
+                <Text style={[styles.text, { fontSize: 24 }]}>Save</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const SpotifyResult = (props: SpotifyResultProperties) => {
     return (
-        <TouchableOpacity onPress={() => props.onPressed?.(props.album)} style={{ flexDirection: 'row', alignItems: 'center', height: 100, }}>
-            <Image style={{ width: 100, height: 100, backgroundColor: 'black' }} source={{ uri: props.album?.images?.[0]?.url }} />
-            <View style={{ justifyContent: 'center', alignItems: 'center', flexGrow: 1, flexShrink: 1, overflow: 'hidden' }}>
+        <TouchableOpacity onPress={() => props.onPressed?.(props.album)} style={styles.spotifyResult}>
+            <Image style={styles.artwork} source={{ uri: props.album?.images?.[0]?.url }} />
+            <View style={styles.spotifyResultInfo}>
                 {props.album ?
                 <View>
-                    <Text style={{ color: 'white', fontSize: 16, }}>{props.album.name}</Text>
-                    {props.album.artists.map((a, i) => <Text key={i} style={{ color: 'white', }}>{a.name}</Text>)}
+                    <Text style={[styles.text, { fontSize: 16, }]}>{props.album.name}</Text>
+                    {props.album.artists.map((a, i) => <Text key={i} style={styles.text}>{a.name}</Text>)}
                 </View> :
-                <Text style={{ color: 'white', fontSize: 24, }}>None</Text>}
+                <Text style={[styles.text, { fontSize: 24, }]}>None</Text>}
             </View>
             <Fontisto name={props.selected ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color="white" style={{ marginRight: 10, }} />
         </TouchableOpacity>
@@ -100,15 +103,54 @@ const styles = StyleSheet.create({
         padding: 10,
         height: '100%',
     },
+    textInput: {
+        borderBottomWidth: 1,
+        fontSize: 24,
+        color: 'white',
+        borderColor: 'white',
+    },
+    spotifyResultsContainer: {
+        flexGrow: 1,
+        flexShrink: 1,
+        borderWidth: 1,
+        borderColor: 'white',
+        padding: 10,
+        marginTop: 10,
+    },
+    spotifyResultsHeading: {
+        color: 'white',
+        fontSize: 24,
+        textAlign: 'center',
+    },
+    spotifyResultsList: {
+        flexGrow: 1,
+    },
+    saveBtn: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+        backgroundColor: '#9f00ff',
+        padding: 10,
+    },
+    spotifyResult: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 100,
+    },
     artwork: {
-        width: 240,
-        height: 240,
+        width: 100,
+        height: 100,
+        backgroundColor: 'black',
+    },
+    spotifyResultInfo: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexGrow: 1,
+        flexShrink: 1,
+        overflow: 'hidden',
     },
     text: {
-        color: '#fff',
-    }, 
-    track: {
-        height: 30,
+        color: 'white',
     },
 });
 
