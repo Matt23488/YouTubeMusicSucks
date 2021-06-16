@@ -9,7 +9,7 @@ const AlbumList = ({ route, navigation }: AlbumListProperties) => {
     const [{ albums }] = useMusic();
 
     const filter: (a: YtmsAlbum) => boolean = route.params.artistId === 'all' ? a => true : a => a.artistId === route.params.artistId;
-    albums.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    albums.sort((a, b) => a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase() ? -1 : a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : 0);
 
     return (
         <ScrollView style={styles.container}>
