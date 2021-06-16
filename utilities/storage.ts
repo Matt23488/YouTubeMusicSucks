@@ -109,6 +109,24 @@ export const importSongs = async () => {
     dispatchMusicUpdated();
 };
 
+export const reorderAlbum = (albumId: string, trackIndex: number, newIndex: number) => {
+    const album = storedData.albums.find(a => a.albumId === albumId)!;
+    const track = album.tracks[trackIndex];
+    const tracks = album.tracks.filter((t, i) => i !== trackIndex);
+    album.tracks = tracks.slice(0, newIndex).concat(track, tracks.slice(newIndex));
+    dispatchMusicUpdated();
+    saveData();
+};
+
+export const reorderPlaylist = (playlistId: string, trackIndex: number, newIndex: number) => {
+    const playlist = storedData.playlists.find(p => p.playlistId === playlistId)!;
+    const track = playlist.tracks[trackIndex];
+    const tracks = playlist.tracks.filter((t, i) => i !== trackIndex);
+    playlist.tracks = tracks.slice(0, newIndex).concat(track, tracks.slice(newIndex));
+    dispatchMusicUpdated();
+    saveData();
+};
+
 export interface YtmsData {
     tracks: YtmsTrack[];
     albums: YtmsAlbum[];

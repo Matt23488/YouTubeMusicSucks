@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { RouteProp } from '@react-navigation/core';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { StyleSheet, ScrollView, TextInput, Image, Text } from 'react-native';
+import { StyleSheet, View, ScrollView, TextInput, Image, Text } from 'react-native';
 import * as spotify from '../utilities/spotify';
 import type { SpotifyAlbum, SpotifyTrack, SpotifyPagedCollection } from '../utilities/spotify';
 import { useMusic } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
 const AlbumEditor = ({ navigation, route }: AlbumEditorProperties) => {
-    const { albums } = useMusic();
+    const { albums, tracks } = useMusic();
     const ytmsAlbum = albums.find(a => a.albumId === route.params.albumId)!;
+    // console.log(ytmsAlbum);
 
     const [albumName, setAlbumName] = useState(ytmsAlbum.name);
     // const [spotifyId, setSpotifyId] = useState<string>();
@@ -31,22 +32,31 @@ const AlbumEditor = ({ navigation, route }: AlbumEditorProperties) => {
         });
     }, [albumName]);
 
-    useEffect(() => {
-        // console.log('current id', spotifyId);
-        // console.log('artwork', artworkUrl);
-        // console.log(spotifyAlbum?.href);
-        // console.log(spotifyTrackList);
-    }, [spotifyAlbum]);
+    // useEffect(() => {
+    //     // console.log('current id', spotifyId);
+    //     // console.log('artwork', artworkUrl);
+    //     // console.log(spotifyAlbum?.href);
+    //     // console.log(spotifyTrackList);
+    // }, [spotifyAlbum]);
 
     // TODO: if spotifyAlbum is undefined, display no results instead of the spotify results
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
             <Image style={styles.artwork} source={{ uri: spotifyAlbum?.images[0]?.url }} />
             <Text style={styles.text}>{spotifyAlbum?.name}</Text>
-            {spotifyTrackList?.items?.map(t => (
-                <Text style={styles.text} key={t.id}>{t.track_number} - {t.name}</Text>
-            ))}
-        </ScrollView>
+            <ScrollView style={{ flexDirection: 'row', flexGrow: 1 }}>
+                <View style={{ flexGrow: 1 }}>
+                    {spotifyTrackList?.items?.map(t => (
+                        <Text style={[styles.text, styles.track]} key={t.id}>{t.track_number} - {t.name}</Text>
+                    ))}
+                </View>
+                <View style={{ flexGrow: 1 }}>
+                    {ytmsAlbum.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((t, i) => (
+                        <Text style={[styles.text, styles.track]} key={i}>{i + 1} - {t.name}</Text>
+                    ))}
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -66,7 +76,10 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fff',
-    }
+    }, 
+    track: {
+        height: 30,
+    },
 });
 
 export default AlbumEditor;
