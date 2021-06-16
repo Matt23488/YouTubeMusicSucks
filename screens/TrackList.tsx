@@ -8,7 +8,7 @@ import { YtmsNavigationParamList } from './YtmsNavigator';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 const TrackList = ({ route, navigation }: TrackListProperties) => {
-    const { tracks, albums, playlists } = useMusic();
+    const [{ tracks, albums, playlists }] = useMusic();
     const album = albums.find(a => a.albumId === route.params.albumId);
     const playlist = playlists.find(p => p.playlistId === route.params.playlistId);
 
@@ -51,7 +51,7 @@ const TrackList = ({ route, navigation }: TrackListProperties) => {
 };
 
 const AlbumTrackList = (props: AlbumTrackListProperties) => {
-    const { tracks } = useMusic();
+    const [{ tracks }] = useMusic();
     return (
         <>
             {props.album.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((track, i, tracks) => (
@@ -74,7 +74,7 @@ const AlbumTrackList = (props: AlbumTrackListProperties) => {
 };
 
 const PlaylistTrackList = (props: PlaylistTrackListProperties) => {
-    const { tracks } = useMusic();
+    const [{ tracks }] = useMusic();
     return (
         <>
             {props.playlist.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((track, i, tracks) => (
@@ -97,7 +97,7 @@ const PlaylistTrackList = (props: PlaylistTrackListProperties) => {
 };
 
 const AllTrackList = (props: AllTrackListProperties) => {
-    const { tracks } = useMusic();
+    const [{ tracks }] = useMusic();
     return (
         <>
             {tracks.map((track, i) => (

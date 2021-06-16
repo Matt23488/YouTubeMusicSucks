@@ -41,7 +41,11 @@ export const useMusic = () => {
         return handle.remove;
     }, []);
 
-    return data;
+    const saveChanges = () => {
+        dispatchMusicUpdated();
+        saveData();
+    };
+    return [data, saveChanges] as [YtmsData, () => void];
 };
 
 export const importSongs = async () => {

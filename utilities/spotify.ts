@@ -42,7 +42,7 @@ export const search = async (options: { q: string, types: string[], token?: stri
     }).then(r => r.json()) as SpotifySearchResponse;
 };
 
-export const getAlbumTrackList = async (options: { album: string, token?: string }) => {
+export const getAlbum = async (options: { album: string, token?: string }) => {
     const url = options.album.startsWith('https://api.spotify.com/v1/albums/') ? options.album : `https://api.spotify.com/v1/albums/${options.album}`;
     return await fetch(url, {
         method: 'GET',
@@ -51,7 +51,7 @@ export const getAlbumTrackList = async (options: { album: string, token?: string
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${options.token || await getToken()}`,
         },
-    }).then(r => r.json()) as { tracks: SpotifyPagedCollection<SpotifyTrack> };
+    }).then(r => r.json()) as SpotifyAlbumDetail;
 };
 
 interface SpotifySearchResponse {
@@ -78,6 +78,10 @@ export interface SpotifyAlbum {
     href: string;
     artists: SpotifyArtist[];
     images: SpotifyImage[];
+}
+
+export interface SpotifyAlbumDetail extends SpotifyAlbum {
+    tracks: SpotifyPagedCollection<SpotifyTrack>;
 }
 
 export interface SpotifyArtist {

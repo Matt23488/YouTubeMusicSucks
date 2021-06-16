@@ -6,7 +6,7 @@ import { useMusic, YtmsAlbum } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
 const AlbumList = ({ route, navigation }: AlbumListProperties) => {
-    const { albums } = useMusic();
+    const [{ albums }] = useMusic();
 
     // useLayoutEffect(() => {
     //     navigation.setOptions({

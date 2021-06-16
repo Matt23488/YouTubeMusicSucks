@@ -13,7 +13,7 @@ import AlbumEditor from './screens/AlbumEditor';
 
 const App = () => {
   const [state, setState] = useState({ loaded: false, error: false });
-  const { artists, albums, tracks } = useMusic();
+  const [{ artists, albums, tracks }] = useMusic();
 
   useEffect(() => {
     Permissions.request(Permissions.PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE).then(result => {

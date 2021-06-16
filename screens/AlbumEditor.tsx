@@ -1,62 +1,85 @@
 import React, { useEffect, useState } from 'react';
 import { RouteProp } from '@react-navigation/core';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { StyleSheet, View, ScrollView, TextInput, Image, Text } from 'react-native';
+import { StyleSheet, View, ScrollView, TextInput, Image, Text, TouchableOpacity } from 'react-native';
 import * as spotify from '../utilities/spotify';
-import type { SpotifyAlbum, SpotifyTrack, SpotifyPagedCollection } from '../utilities/spotify';
+import type { SpotifyAlbum, SpotifyAlbumDetail } from '../utilities/spotify';
 import { useMusic } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 
 const AlbumEditor = ({ navigation, route }: AlbumEditorProperties) => {
-    const { albums, tracks } = useMusic();
-    const ytmsAlbum = albums.find(a => a.albumId === route.params.albumId)!;
-    // console.log(ytmsAlbum);
+    const [{ albums }, saveChanges] = useMusic();
+    const album = albums.find(a => a.albumId === route.params.albumId)!;
 
-    const [albumName, setAlbumName] = useState(ytmsAlbum.name);
-    // const [spotifyId, setSpotifyId] = useState<string>();
-    // const [artworkUrl, setArtworkUrl] = useState<string>();
-    const [spotifyAlbum, setSpotifyAlbum] = useState<SpotifyAlbum>();
-    const [spotifyTrackList, setSpotifyTrackList] = useState<SpotifyPagedCollection<SpotifyTrack>>();
+    const [tempName, setTempName] = useState(album.name);
+    const [spotifySearchVal, setSpotifySearchVal] = useState(tempName);
+    const [spotifyResults, setSpotifyResults] = useState<SpotifyAlbum[]>([]);
+    const [spotifySelection, setSpotifySelection] = useState<SpotifyAlbum>();
+    
+    const [timeoutHandle, setTimeoutHandle] = useState<ReturnType<typeof setTimeout>>();
+
     useEffect(() => {
-        spotify.search({ q: albumName, types: ['album'] }).then(async ({ albums }) => {
-            if (!albums) return;
-            if (albums.items.length === 0) return;
-
-            // const album = await spotify.getAlbumTrackList({ album: albums.items[0].href });
-            // setSpotifyId(albums.items[0].id);
-            // setArtworkUrl(albums.items[0].images[0]?.url);
-            // console.log()
-            const result = await spotify.getAlbumTrackList({ album: albums.items[0].href });
-            setSpotifyTrackList(result.tracks);
-            setSpotifyAlbum(albums.items[0]);
+        spotify.search({ q: spotifySearchVal, types: ['album'] }).then(response => {
+            setSpotifyResults(response.albums?.items ?? []);
         });
-    }, [albumName]);
+    }, [spotifySearchVal]);
 
-    // useEffect(() => {
-    //     // console.log('current id', spotifyId);
-    //     // console.log('artwork', artworkUrl);
-    //     // console.log(spotifyAlbum?.href);
-    //     // console.log(spotifyTrackList);
-    // }, [spotifyAlbum]);
+    useEffect(() => {
+        if (!album.spotifyId) setSpotifySelection(undefined);
+        else spotify.getAlbum({ album: album.spotifyId }).then(setSpotifySelection);
+    }, [album.spotifyId]);
 
-    // TODO: if spotifyAlbum is undefined, display no results instead of the spotify results
+    const onChangeTempName = (newName: string) => {
+        if (timeoutHandle) clearTimeout(timeoutHandle);
+        const handle = setTimeout(() => {
+            setSpotifySearchVal(tempName);
+            setTimeoutHandle(undefined);
+        }, 2000);
+        setTimeoutHandle(handle);
+        setTempName(newName);
+    };
+
+    const saveAlbum = () => {
+        album.name = tempName;
+        album.spotifyId = spotifySelection?.id;
+        album.artworkUrl = spotifySelection?.images?.[0]?.url;
+        saveChanges();
+        navigation.pop();
+    };
+
     return (
         <View style={styles.container}>
-            <Image style={styles.artwork} source={{ uri: spotifyAlbum?.images[0]?.url }} />
-            <Text style={styles.text}>{spotifyAlbum?.name}</Text>
-            <ScrollView style={{ flexDirection: 'row', flexGrow: 1 }}>
-                <View style={{ flexGrow: 1 }}>
-                    {spotifyTrackList?.items?.map(t => (
-                        <Text style={[styles.text, styles.track]} key={t.id}>{t.track_number} - {t.name}</Text>
+            <TextInput style={{ borderBottomWidth: 1, fontSize: 24, color: 'white', borderColor: 'white', }} defaultValue={tempName} onChangeText={onChangeTempName} />
+            <View style={{ flexGrow: 1, flexShrink: 1, borderWidth: 1, borderColor: 'white', padding: 10, marginTop: 10, }}>
+                <Text style={{ color: 'white', fontSize: 24, textAlign: 'center' }}>Artwork Search</Text>
+                <ScrollView style={{ flexGrow: 1, }}>
+                    <SpotifyResult selected={!spotifySelection} onPressed={setSpotifySelection} />
+                    {spotifySelection && <SpotifyResult album={spotifySelection} selected={true} />}
+                    {spotifyResults.filter(a => a.id !== spotifySelection?.id).map((a, i) => (
+                        <SpotifyResult key={i} selected={false} album={a} onPressed={setSpotifySelection} />
                     ))}
-                </View>
-                <View style={{ flexGrow: 1 }}>
-                    {ytmsAlbum.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((t, i) => (
-                        <Text style={[styles.text, styles.track]} key={i}>{i + 1} - {t.name}</Text>
-                    ))}
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
+            <TouchableOpacity onPress={saveAlbum} style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10, backgroundColor: '#9f00ff', padding: 10, }}><Text style={{ fontSize: 24, color: 'white' }}>Save</Text></TouchableOpacity>
         </View>
+    );
+};
+
+const SpotifyResult = (props: SpotifyResultProperties) => {
+    return (
+        <TouchableOpacity onPress={() => props.onPressed?.(props.album)} style={{ flexDirection: 'row', alignItems: 'center', height: 100, }}>
+            <Image style={{ width: 100, height: 100, backgroundColor: 'black' }} source={{ uri: props.album?.images?.[0]?.url }} />
+            <View style={{ justifyContent: 'center', alignItems: 'center', flexGrow: 1, flexShrink: 1, overflow: 'hidden' }}>
+                {props.album ?
+                <View>
+                    <Text style={{ color: 'white', fontSize: 16, }}>{props.album.name}</Text>
+                    {props.album.artists.map((a, i) => <Text key={i} style={{ color: 'white', }}>{a.name}</Text>)}
+                </View> :
+                <Text style={{ color: 'white', fontSize: 24, }}>None</Text>}
+            </View>
+            <Fontisto name={props.selected ? 'radio-btn-active' : 'radio-btn-passive'} size={24} color="white" style={{ marginRight: 10, }} />
+        </TouchableOpacity>
     );
 };
 
@@ -65,10 +88,17 @@ interface AlbumEditorProperties {
     route: RouteProp<YtmsNavigationParamList, 'AlbumEditor'>;
 }
 
+interface SpotifyResultProperties {
+    album?: SpotifyAlbum;
+    onPressed?: (album: SpotifyAlbum | undefined) => void;
+    selected: boolean;
+}
+
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#336',
         padding: 10,
+        height: '100%',
     },
     artwork: {
         width: 240,

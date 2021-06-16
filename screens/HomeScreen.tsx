@@ -10,10 +10,10 @@ import { YtmsNavigationParamList } from './YtmsNavigator';
 
 const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParamList, 'HomeScreen'> }) => {
     const { navigation } = props;
-    const { tracks, albums, playlists, artists } = useMusic();
+    const [{ tracks, albums, playlists, artists }] = useMusic();
 
-    artists.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
-    albums.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
+    // artists.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
+    // albums.sort(({ name: aName }, { name: bName }) => aName < bName ? -1 : aName > bName ? 1 : 0);
 
     return (
         <View style={styles.container}>
