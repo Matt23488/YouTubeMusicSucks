@@ -9,7 +9,11 @@ export interface YtmsNavigationParamList extends Record<string, object | undefin
     ArtistList: undefined;
     AlbumList: { artistId: string };
     TrackList: { artistId: string, albumId?: string, playlistId?: string };
+
     AlbumEditor: { albumId: string };
     ArtistEditor: { artistId: string };
     TrackEditor: { trackId: string };
+
+    TrackOrgArtistList: { trackId: string, artistId: string, albumId: string };
+    TrackOrgAlbumList: { trackId: string, artistId: string, albumId?: string };
 }

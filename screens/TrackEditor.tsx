@@ -5,10 +5,10 @@ import { StyleSheet, View, ScrollView, TextInput, Image, Text, TouchableOpacity 
 import { useMusic } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 
-// TODO: Allow moving to another album, and create a new album and even artist if necessary
 const TrackEditor = ({ navigation, route }: TrackEditorProperties) => {
-    const [{ tracks }, saveChanges] = useMusic();
+    const [{ tracks, albums }, saveChanges] = useMusic();
     const track = tracks.find(t => t.trackId === route.params.trackId)!;
+    const album = albums.find(a => a.albumId === track.albumId)!;
 
     const [tempName, setTempName] = useState(track.name);
 
@@ -21,6 +21,9 @@ const TrackEditor = ({ navigation, route }: TrackEditorProperties) => {
     return (
         <View style={styles.container}>
             <TextInput style={styles.textInput} defaultValue={tempName} onChangeText={setTempName} />
+            <TouchableOpacity style={styles.orgListItem} onPress={() => navigation.navigate('TrackOrgArtistList', track)}>
+                <Text style={styles.saveBtnText}>{album.name} - {album.artistName}</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={saveTrack} style={styles.saveBtn}>
                 <Text style={styles.saveBtnText}>Save</Text>
             </TouchableOpacity>
@@ -55,7 +58,10 @@ const styles = StyleSheet.create({
     saveBtnText: {
         fontSize: 24,
         color: 'white',
-    }, 
+    },
+    orgListItem: {
+
+    },
 });
 
 export default TrackEditor;

@@ -12,6 +12,8 @@ import TrackList from './screens/TrackList';
 import AlbumEditor from './screens/AlbumEditor';
 import ArtistEditor from './screens/ArtistEditor';
 import TrackEditor from './screens/TrackEditor';
+import TrackOrgArtistList from './screens/TrackOrgArtistList';
+import TrackOrgAlbumList from './screens/TrackOrgAlbumList';
 
 const App = () => {
   const [state, setState] = useState({ loaded: false, error: false });
@@ -62,9 +64,11 @@ const App = () => {
         <YtmsNavigator.Screen name="ArtistList" component={ArtistList} options={{ title: 'All Artists' }} />
         <YtmsNavigator.Screen name="AlbumList" component={AlbumList} options={buildAlbumListOptions} />
         <YtmsNavigator.Screen name="TrackList" component={TrackList} options={buildTrackListOptions} />
-        <YtmsNavigator.Screen name="AlbumEditor" component={AlbumEditor} options={{ title: 'Album Search' }} />
+        <YtmsNavigator.Screen name="AlbumEditor" component={AlbumEditor} options={{ title: 'Edit Album' }} />
         <YtmsNavigator.Screen name="ArtistEditor" component={ArtistEditor} options={{ title: 'Edit Artist Name' }} />
         <YtmsNavigator.Screen name="TrackEditor" component={TrackEditor} options={{ title: 'Edit Track' }} />
+        <YtmsNavigator.Screen name="TrackOrgArtistList" component={TrackOrgArtistList} options={{ title: 'Select Artist' }} />
+        <YtmsNavigator.Screen name="TrackOrgAlbumList" component={TrackOrgAlbumList} options={{ title: 'Select Album' }} />
       </YtmsNavigator.Navigator>
       <MusicPlayer />
     </NavigationContainer>
