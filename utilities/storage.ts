@@ -170,5 +170,6 @@ export interface YtmsArtist {
 
 export interface YtmsPlaylist {
     playlistId: string;
+    name: string;
     tracks: string[];
 }

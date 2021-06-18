@@ -14,6 +14,12 @@ import ArtistEditor from './screens/ArtistEditor';
 import TrackEditor from './screens/TrackEditor';
 import TrackOrgArtistList from './screens/TrackOrgArtistList';
 import TrackOrgAlbumList from './screens/TrackOrgAlbumList';
+import PlaylistList from './screens/PlaylistList';
+import PlaylistEditor from './screens/PlaylistEditor';
+import PlaylistAddTrack from './screens/PlaylistAddTrack';
+import PlaylistAlbumList from './screens/PlaylistAlbumList';
+import PlaylistArtistList from './screens/PlaylistArtistList';
+import PlaylistTrackList from './screens/PlaylistTrackList';
 
 const App = () => {
   const [state, setState] = useState({ loaded: false, error: false });
@@ -64,11 +70,17 @@ const App = () => {
         <YtmsNavigator.Screen name="ArtistList" component={ArtistList} options={{ title: 'All Artists' }} />
         <YtmsNavigator.Screen name="AlbumList" component={AlbumList} options={buildAlbumListOptions} />
         <YtmsNavigator.Screen name="TrackList" component={TrackList} options={buildTrackListOptions} />
+        <YtmsNavigator.Screen name="PlaylistList" component={PlaylistList} options={{ title: 'All Playlists' }} />
         <YtmsNavigator.Screen name="AlbumEditor" component={AlbumEditor} options={{ title: 'Edit Album' }} />
         <YtmsNavigator.Screen name="ArtistEditor" component={ArtistEditor} options={{ title: 'Edit Artist Name' }} />
         <YtmsNavigator.Screen name="TrackEditor" component={TrackEditor} options={{ title: 'Edit Track' }} />
+        <YtmsNavigator.Screen name="PlaylistEditor" component={PlaylistEditor} options={{ title: 'Edit Playlist Name' }} />
         <YtmsNavigator.Screen name="TrackOrgArtistList" component={TrackOrgArtistList} options={{ title: 'Select Artist' }} />
         <YtmsNavigator.Screen name="TrackOrgAlbumList" component={TrackOrgAlbumList} options={{ title: 'Select Album' }} />
+        <YtmsNavigator.Screen name="PlaylistAddTrack" component={PlaylistAddTrack} options={{ title: 'Add Tracks' }} />
+        <YtmsNavigator.Screen name="PlaylistArtistList" component={PlaylistArtistList} options={{ title: 'Add Tracks' }} />
+        <YtmsNavigator.Screen name="PlaylistAlbumList" component={PlaylistAlbumList} options={{ title: 'Add Tracks' }} />
+        <YtmsNavigator.Screen name="PlaylistTrackList" component={PlaylistTrackList} options={{ title: 'Add Tracks' }} />
       </YtmsNavigator.Navigator>
       <MusicPlayer />
     </NavigationContainer>

@@ -27,7 +27,7 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
                     <Icon name="compact-disc" size={24} color="white" />
                     <Text style={styles.actionText}>Albums ({albums.length})</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+                <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('PlaylistList')}>
                     <MatIcon name="playlist-music" size={24} color="white" />
                     <Text style={styles.actionText}>Playlists ({playlists.length})</Text>
                 </TouchableOpacity>
