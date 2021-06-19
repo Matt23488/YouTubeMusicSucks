@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ImageBackground } from 'react-native';
 import { NavigationProp } from '@react-navigation/core';
 import { StackNavigationProp } from '@react-navigation/stack';
 import TrackPlayer from 'react-native-track-player';
@@ -14,7 +14,7 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
 
     return (
         <View style={styles.container}>
-            <View style={styles.main}>
+            <ImageBackground source={require('../images/background.jpg')} style={styles.main}>
                 <TouchableOpacity style={styles.navItem} onPress={importSongs}>
                     <Icon name="file-import" size={24} color="white" />
                     <Text style={styles.actionText}>Import New Music</Text>
@@ -35,40 +35,44 @@ const HomeScreen = (props: { navigation: StackNavigationProp<YtmsNavigationParam
                     <Icon name="music" size={24} color="white" />
                     <Text style={styles.actionText}>Tracks ({tracks.length})</Text>
                 </TouchableOpacity>
-            </View>
+            </ImageBackground>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#336',
-    padding: 10,
-  },
+    container: {
+        flex: 1,
+        // alignItems: 'center',
+        backgroundColor: '#336',
+    },
+    
+    main: {
+        padding: 10,
+        flex: 1,
+        // width: '100%',
+        resizeMode: 'stretch',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        // transform: [{ rotate: '90deg' }],
+        // justifyContent: 'center',
+    },
 
-  header: {
-    flex: 1,
-  },
-
-  main: {
-    flex: 5,
-    width: '100%',
-  },
-
-  navItem: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  
-  actionText: {
-    marginLeft: 10,
-    color: 'white',
-    fontSize: 24,
-  },
+    navItem: {
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    
+    actionText: {
+        marginLeft: 10,
+        color: 'white',
+        fontSize: 24,
+    },
 });
 
 export default HomeScreen;

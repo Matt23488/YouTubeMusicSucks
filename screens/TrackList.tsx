@@ -3,14 +3,15 @@ import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from 'react-nati
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import TrackPlayer from 'react-native-track-player';
-import { useMusic, YtmsTrack, reorderAlbum, YtmsAlbum, YtmsPlaylist, reorderPlaylist } from '../utilities/storage';
+import { useMusic, YtmsTrack, reorderAlbum, YtmsAlbum, YtmsPlaylist, reorderPlaylist, YtmsArtist } from '../utilities/storage';
 import { YtmsNavigationParamList } from './YtmsNavigator';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { ToastAndroid } from 'react-native';
 
 const TrackList = ({ route, navigation }: TrackListProperties) => {
-    const [{ tracks, albums, playlists }, saveChanges] = useMusic();
+    const [{ albums, playlists, artists }, saveChanges] = useMusic();
     const album = albums.find(a => a.albumId === route.params.albumId);
+    const artist = artists.find(a => a.artistId === route.params.artistId);
     const playlist = playlists.find(p => p.playlistId === route.params.playlistId);
 
     useLayoutEffect(() => {
@@ -59,7 +60,8 @@ const TrackList = ({ route, navigation }: TrackListProperties) => {
     return (
         <ScrollView style={styles.container}>
             {album ?
-                <AlbumTrackList album={album} onTrackPressed={playTrack} onTrackLongPressed={editTrack} /> : playlist ?
+                <AlbumTrackList album={album} onTrackPressed={playTrack} onTrackLongPressed={editTrack} /> : artist ?
+                <ArtistTrackList artist={artist} onTrackPressed={playTrack} onTrackLongPressed={editTrack} /> : playlist ?
                 <PlaylistTrackList playlist={playlist} onTrackPressed={playTrack} onTrackLongPressed={removeFromPlaylist} onAddTracks={() => navigation.navigate('PlaylistAddTrack', { playlistId: playlist.playlistId })} /> :
                 <AllTrackList onTrackPressed={playTrack} onTrackLongPressed={editTrack} />}
         </ScrollView>
@@ -83,6 +85,21 @@ const AlbumTrackList = (props: AlbumTrackListProperties) => {
                             <Icon name="sort-down" size={16} color="white" />
                         </TouchableOpacity>
                     </View>
+                </View>
+            ))}
+        </>
+    );
+};
+
+const ArtistTrackList = (props: ArtistTrackListProperties) => {
+    const [{ tracks }] = useMusic();
+    return (
+        <>
+            {props.artist.tracks.map(trackId => tracks.find(t => t.trackId === trackId)!).map((track, i, tracks) => (
+                <View key={i} style={styles.item}>
+                    <TouchableOpacity style={styles.selectTrackBtn} onPress={() => props.onTrackPressed(tracks, i)} onLongPress={() => props.onTrackLongPressed(tracks, i)}>
+                        <Text style={styles.itemText}>{track.name}</Text>
+                    </TouchableOpacity>
                 </View>
             ))}
         </>
@@ -178,6 +195,10 @@ interface CommonListProperties {
 
 interface AlbumTrackListProperties extends CommonListProperties {
     album: YtmsAlbum;
+}
+
+interface ArtistTrackListProperties extends CommonListProperties {
+    artist: YtmsArtist;
 }
 
 interface PlaylistTrackListProperties extends CommonListProperties {

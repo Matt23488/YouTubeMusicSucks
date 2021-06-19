@@ -58,7 +58,7 @@ const App = () => {
       <YtmsNavigator.Navigator
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#9f00ff',
+            backgroundColor: '#4f007f',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {

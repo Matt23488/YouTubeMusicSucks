@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, ImageBackground } from 'react-native';
 import TrackPlayer, { Capability, Event, RepeatMode, State, usePlaybackState, useProgress, useTrackPlayerEvents } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -85,8 +85,9 @@ const MusicPlayer = () => {
     const styles = expanded ? expandedStyles : collapsedStyles;
     return (
         <View style={styles.container}>
+            <Image source={require('../images/background.jpg')} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, }} />
             <TouchableOpacity onPress={() => setExpanded(!expanded)} style={styles.expandButton}>
-                <Icon name="grip-lines" color="white" size={16} />
+                <Icon name={expanded ? 'chevron-down' : 'chevron-up'} color="white" size={16} />
             </TouchableOpacity>
             <Image style={styles.artwork} source={{uri: `${trackArtwork}`}} />
             <Text style={{ color: '#fff' }}>{trackArtist && `${trackArtist} - `}{trackTitle || 'none'}</Text>
@@ -136,9 +137,10 @@ const collapsedStyles = StyleSheet.create({
         backgroundColor: '#336',
         justifyContent: 'center',
         alignItems: 'center',
+        overflow: 'hidden',
     },
     expandButton: {
-        backgroundColor: '#9f00ff',
+        backgroundColor: '#4f007f',
         borderColor: 'transparent',
         borderBottomColor: '#333',
         borderWidth: 1,

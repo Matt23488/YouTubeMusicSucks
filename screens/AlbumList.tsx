@@ -14,6 +14,10 @@ const AlbumList = ({ route, navigation }: AlbumListProperties) => {
 
     return (
         <ScrollView style={styles.container}>
+            {route.params.artistId !== 'all' &&
+            <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('TrackList', { artistId: route.params.artistId })}>
+                <Text style={styles.itemText}>All Tracks</Text>
+            </TouchableOpacity>}
             {albums.filter(filter).map(album => (
                 <AlbumItem
                     key={album.albumId}
